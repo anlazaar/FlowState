@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  sessions  Session[]
+  stats     Stats?
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskTitle String
+  duration  Int       // in minutes
+  status    String    // "SUCCESS" or "FAILED"
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+}
+
+model Stats {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalXP       Int      @default(0)
+  level         Int      @default(1)
+  currentStreak Int      @default(0)
+  bestStreak    Int      @default(0)
+  lastSessionAt DateTime?
+}
