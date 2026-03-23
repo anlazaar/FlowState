@@ -16,10 +16,12 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await hashPassword(password);
+    const username = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 10000);
 
     const user = await prisma.user.create({
       data: {
         email,
+        username,
         password: hashedPassword,
         stats: {
           create: {}
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
     const token = await signToken({ userId: user.id, email: user.email });
 
     const response = NextResponse.json({ 
-      user: { id: user.id, email: user.email }
+      user: { id: user.id, email: user.email, username: user.username }
     }, { status: 201 });
 
     response.cookies.set('auth_token', token, {

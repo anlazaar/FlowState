@@ -10,21 +10,39 @@ datasource db {
 model User {
   id        String    @id @default(cuid())
   email     String    @unique
+  username  String?   @unique
   password  String
   createdAt DateTime  @default(now())
   sessions  Session[]
   stats     Stats?
+  dailyStats DailyStats[]
+  missions   Mission[]
+  profileImageUrl    String?
+  themeColor         String    @default("violet-500")
+  backgroundGradient String    @default("bg-[#030305]")
+  textColor          String    @default("text-white")
+  links              UserLink[]
+}
+
+model UserLink {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "github", "linkedin", "website", "custom"
+  url       String
 }
 
 model Session {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  taskTitle String
-  duration  Int       // in minutes
-  status    String    // "SUCCESS" or "FAILED"
-  startedAt DateTime  @default(now())
-  endedAt   DateTime?
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskTitle        String
+  duration         Int       // in minutes
+  status           String    // "SUCCESS" or "FAILED"
+  distractionCount Int       @default(0)
+  inactiveDuration Int       @default(0) // in seconds
+  startedAt        DateTime  @default(now())
+  endedAt          DateTime?
 }
 
 model Stats {
@@ -36,4 +54,34 @@ model Stats {
   currentStreak Int      @default(0)
   bestStreak    Int      @default(0)
   lastSessionAt DateTime?
+}
+
+model DailyStats {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime
+  totalFocusMinutes Int      @default(0)
+  sessionsCount     Int      @default(0)
+
+  @@unique([userId, date])
+}
+
+model Mission {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // e.g. "SESSIONS_COUNT", "FOCUS_MINUTES"
+  target    Int
+  progress  Int      @default(0)
+  completed Boolean  @default(false)
+  date      DateTime
+}
+
+model Match {
+  id       String  @id @default(cuid())
+  user1Id  String
+  user2Id  String
+  status   String  // "PENDING", "ACTIVE", "COMPLETED"
+  winnerId String?
 }

@@ -6,6 +6,8 @@ import { useStore } from "@/store/useStore";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setUser = useStore(state => state.setUser);
   const setStats = useStore(state => state.setStats);
+  const setDailyStats = useStore(state => state.setDailyStats);
+  const setMissions = useStore(state => state.setMissions);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,6 +18,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await res.json();
           setUser(data.user);
           setStats(data.stats);
+          if (data.dailyStats) setDailyStats(data.dailyStats);
+          if (data.missions) setMissions(data.missions);
+          
+          if (typeof window !== "undefined") {
+            const currentClasses = document.body.className.split(" ").filter(c => !c.startsWith("theme-"));
+            document.body.className = [...currentClasses, data.user?.themeColor || "theme-violet"].join(" ");
+          }
         } else {
           setUser(null);
           setStats(null);

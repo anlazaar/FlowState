@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { LogOut, Zap } from "lucide-react";
+import { LogOut, Zap, Palette } from "lucide-react";
 
 export function Navbar() {
   const { stats, logout } = useStore();
@@ -16,8 +16,25 @@ export function Navbar() {
     router.push("/");
   };
 
+  const updateTheme = async (themeClasses: string) => {
+    try {
+      if (typeof window !== "undefined") {
+        const currentClasses = document.body.className.split(" ").filter(c => !c.startsWith("theme-"));
+        document.body.className = [...currentClasses, themeClasses].join(" ");
+      }
+      await fetch("/api/users/theme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ themeColor: themeClasses })
+      });
+      // Optionally update user store here if needed, but CSS update is instant
+    } catch (e) {
+      console.error("Failed to update theme", e);
+    }
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/40 backdrop-blur-2xl">
       <div className="container mx-auto max-w-5xl px-4 h-16 flex items-center">
         <div className="mr-8 flex items-center">
           <Link href="/dashboard" className="flex items-center space-x-2">
@@ -34,6 +51,12 @@ export function Navbar() {
             <Link href="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground">
               Dashboard
             </Link>
+            <Link href="/dashboard/history" className="transition-colors hover:text-foreground/80 text-foreground">
+              History & Stats
+            </Link>
+            <Link href="/dashboard/settings" className="transition-colors hover:text-foreground/80 text-foreground">
+              Settings
+            </Link>
           </nav>
           <div className="flex items-center space-x-4">
             {stats && (
@@ -48,6 +71,21 @@ export function Navbar() {
                 </span>
               </div>
             )}
+            
+            <div className="relative group">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Palette className="h-4 w-4" />
+              </Button>
+              <div className="absolute top-full pt-2 right-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
+                <div className="bg-black/90 backdrop-blur-xl border border-white/10 p-3 rounded-2xl flex gap-2 shadow-2xl">
+                  <button onClick={() => updateTheme('theme-violet')} className="w-8 h-8 rounded-full bg-violet-500 hover:scale-110 transition-transform" />
+                  <button onClick={() => updateTheme('theme-blue')} className="w-8 h-8 rounded-full bg-blue-500 hover:scale-110 transition-transform" />
+                  <button onClick={() => updateTheme('theme-green')} className="w-8 h-8 rounded-full bg-emerald-500 hover:scale-110 transition-transform" />
+                  <button onClick={() => updateTheme('theme-orange')} className="w-8 h-8 rounded-full bg-orange-500 hover:scale-110 transition-transform" />
+                </div>
+              </div>
+            </div>
+
             <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Sign Out</span>
