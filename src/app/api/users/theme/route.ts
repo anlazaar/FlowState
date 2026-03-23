@@ -22,6 +22,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid theme color" }, { status: 400 });
     }
 
+    
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: { themeColor },
