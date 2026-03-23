@@ -103,7 +103,7 @@ export default function DashboardPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Button 
           onClick={() => router.push('/focus')} 
-          className="w-full h-20 text-2xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-[0_0_40px_rgba(139,92,246,0.2)] rounded-2xl border border-white/10 transition-transform hover:scale-[1.01]"
+          className="w-full h-20 text-2xl sm:text-xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-[0_0_40px_rgba(139,92,246,0.2)] rounded-2xl border border-white/10 transition-transform hover:scale-[1.01]"
         >
           <Play fill="currentColor" className="w-8 h-8 mr-4" />
           START FOCUS SESSION
