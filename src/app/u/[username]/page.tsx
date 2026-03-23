@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { calculateFocusScore } from "@/lib/score";
 import { Heatmap } from "@/components/Heatmap";
 import { Flame, Clock, Trophy, Link as LinkIcon, Github, Linkedin, Globe } from "lucide-react";
-// ... (omitting import so I just target the JSX below)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -44,21 +43,30 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
   const totalHours = Math.floor(user.dailyStats.reduce((a: any, b: any) => a + b.totalFocusMinutes, 0) / 60);
 
+  // Take the exact class name from the DB (e.g., "bg-pattern-grid") to trigger globals.css
+  const bgClass = user.backgroundStyle === "bg-none" ? "" : user.backgroundStyle;
+
   return (
     <div className={`min-h-screen bg-[#030305] text-white flex flex-col items-center py-16 px-4 relative overflow-hidden ${user.themeColor || 'theme-violet'}`}>
-      <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-      <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[120px] mix-blend-screen pointer-events-none" />
+      
+      {/* Background Pattern injected here from globals.css */}
+      {bgClass && (
+        <div className={`absolute inset-0 z-0 pointer-events-none ${bgClass}`} />
+      )}
+      
+      {/* Dynamic Theme Glow */}
+      <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[120px] mix-blend-screen pointer-events-none z-0" />
 
       <div className="z-10 w-full max-w-4xl space-y-12">
         {/* Header */}
         <div className="flex flex-col items-center text-center space-y-6">
           <div className="relative">
             {user.profileImageUrl ? (
-              <div className={`w-36 h-36 rounded-full overflow-hidden border-4 border-white/10 ${tier.ring} shadow-2xl z-10 relative`}>
+              <div className={`w-36 h-36 rounded-full overflow-hidden border-4 border-[#030305] ${tier.ring} shadow-2xl z-10 relative bg-black`}>
                 <img src={user.profileImageUrl} alt={user.username!} className="w-full h-full object-cover" />
               </div>
             ) : (
-              <div className={`w-36 h-36 rounded-full flex items-center justify-center bg-black/40 border-4 border-white/10 ${tier.ring} shadow-2xl backdrop-blur-md z-10 relative`}>
+              <div className={`w-36 h-36 rounded-full flex items-center justify-center bg-black/40 border-4 border-[#030305] ${tier.ring} shadow-2xl backdrop-blur-md z-10 relative`}>
                 <span className="text-5xl font-black">{focusScore}</span>
               </div>
             )}
@@ -71,14 +79,18 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
           </div>
 
           <div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-2">@{user.username}</h1>
-            <p className={`text-2xl font-bold uppercase tracking-widest ${tier.color}`}>{tier.label} focuser</p>
+            <h1 className={`text-4xl md:text-6xl font-black tracking-tight mb-2 ${user.usernameFont || "font-sans"}`}>
+              @{user.username}
+            </h1>
+            <p className={`text-2xl font-bold uppercase tracking-widest ${tier.color}`}>
+              {tier.label} focuser
+            </p>
           </div>
 
           {user.links && user.links.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3 relative z-20">
               {user.links.map((link: any) => (
-                <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-full glass hover:bg-white/10 transition-colors border-white/10 text-sm font-medium">
+                <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors border border-white/10 text-sm font-medium backdrop-blur-sm">
                   {link.type === 'github' ? <Github className="w-4 h-4"/> : 
                    link.type === 'linkedin' ? <Linkedin className="w-4 h-4"/> : 
                    <Globe className="w-4 h-4"/>}
@@ -90,8 +102,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="glass border-orange-500/20">
+        <div className="grid gap-4 md:grid-cols-3 relative z-20">
+          <Card className="bg-black/40 border-orange-500/20 backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
               <Flame className="w-5 h-5 text-orange-500" />
@@ -101,7 +113,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
             </CardContent>
           </Card>
           
-          <Card className="glass border-violet-500/20">
+          <Card className="bg-black/40 border-violet-500/20 backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Flow Level</CardTitle>
               <Trophy className="w-5 h-5 text-violet-500" />
@@ -111,7 +123,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
             </CardContent>
           </Card>
 
-          <Card className="glass border-blue-500/20">
+          <Card className="bg-black/40 border-blue-500/20 backdrop-blur-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Total Focus</CardTitle>
               <Clock className="w-5 h-5 text-blue-500" />
@@ -123,14 +135,18 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
         </div>
 
         {/* Heatmap */}
-        <Card className="glass p-8">
+        <Card className="bg-black/40 border-white/10 backdrop-blur-md p-4 md:p-8 relative z-20">
           <h2 className="text-xl font-bold tracking-tight mb-6">Activity Heatmap</h2>
-          <Heatmap data={mappedDailyStats} />
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px] pb-4">
+               <Heatmap data={mappedDailyStats} />
+            </div>
+          </div>
         </Card>
 
-        <div className="text-center pt-8">
+        <div className="text-center pt-8 relative z-20">
           <p className="text-white/50 mb-4">Want to build your own discipline?</p>
-          <Link href="/" className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-colors">
+          <Link href="/" className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-white/90 transition-colors inline-block">
             Join FlowState
           </Link>
         </div>

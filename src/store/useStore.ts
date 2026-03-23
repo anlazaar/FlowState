@@ -14,6 +14,8 @@ export type User = {
   themeColor?: string;
   backgroundGradient?: string;
   textColor?: string;
+  usernameFont?: string;
+  backgroundStyle?: string;
   links?: UserLink[];
 }
 

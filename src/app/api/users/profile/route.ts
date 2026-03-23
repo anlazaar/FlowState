@@ -15,7 +15,7 @@ export async function PUT(req: Request) {
     const userId = payload.userId as string;
     const body = await req.json();
     
-    const { username, profileImageUrl, themeColor, backgroundGradient, textColor, links } = body;
+    const { username, profileImageUrl, themeColor, backgroundGradient, textColor, usernameFont, backgroundStyle, links } = body;
 
     // Validate username uniquely if changed
     if (username) {
@@ -37,6 +37,8 @@ export async function PUT(req: Request) {
     if (themeColor !== undefined) updateData.themeColor = themeColor;
     if (backgroundGradient !== undefined) updateData.backgroundGradient = backgroundGradient;
     if (textColor !== undefined) updateData.textColor = textColor;
+    if (usernameFont !== undefined) updateData.usernameFont = usernameFont;
+    if (backgroundStyle !== undefined) updateData.backgroundStyle = backgroundStyle;
 
     const user = await prisma.user.update({
       where: { id: userId },

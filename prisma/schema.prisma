@@ -21,6 +21,8 @@ model User {
   themeColor         String    @default("violet-500")
   backgroundGradient String    @default("bg-[#030305]")
   textColor          String    @default("text-white")
+  usernameFont       String    @default("font-sans")
+  backgroundStyle    String    @default("bg-none")
   links              UserLink[]
 }
 

@@ -81,6 +81,8 @@ export async function GET() {
         themeColor: user.themeColor,
         backgroundGradient: user.backgroundGradient,
         textColor: user.textColor,
+        usernameFont: user.usernameFont,
+        backgroundStyle: user.backgroundStyle,
         links: user.links
       },
       stats: {
