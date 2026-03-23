@@ -12,34 +12,60 @@ import { MissionsList } from "@/components/Missions";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, stats, dailyStats, missions, isAuthenticated } = useStore();
+
+
+ const { 
+    user, 
+    stats, 
+    dailyStats, 
+    missions, 
+    isAuthenticated,
+    setDailyStats,
+    setMissions,
+    setStats 
+  } = useStore();
+  
   const [recentSessions, setRecentSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     if (!isAuthenticated) {
       router.push("/");
       return;
     }
 
-    async function fetchSessions() {
+    async function loadDashboardData() {
       try {
-        const res = await fetch("/api/sessions");
-        if (res.ok) {
-          const data = await res.json();
-          setRecentSessions(data.sessions.slice(0, 5));
+        const userRes = await fetch("/api/auth/me"); 
+        
+        if (userRes.ok) {
+          const data = await userRes.json();
+          
+          const fetchedStats = data.stats || data.user?.stats;
+          const fetchedDailyStats = data.dailyStats || data.user?.dailyStats;
+          const fetchedMissions = data.missions || data.user?.missions;
+
+          if (fetchedDailyStats) setDailyStats(fetchedDailyStats);
+          if (fetchedMissions) setMissions(fetchedMissions);
+          if (fetchedStats) setStats(fetchedStats);
+        }
+
+        const sessionsRes = await fetch("/api/sessions");
+        if (sessionsRes.ok) {
+          const sessionData = await sessionsRes.json();
+          setRecentSessions(sessionData.sessions?.slice(0, 5) ||[]);
         }
       } catch (e) {
-        console.error("Failed to fetch sessions");
+        console.error("Failed to fetch dashboard data:", e);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchSessions();
-  }, [isAuthenticated, router]);
+    loadDashboardData();
+  },[isAuthenticated, router, setDailyStats, setMissions, setStats]);
 
-  if (!isAuthenticated || !user || !stats) {
+  if (loading || !isAuthenticated || !user || !stats) {
     return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
   }
 
@@ -101,13 +127,29 @@ export default function DashboardPage() {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Button 
-          onClick={() => router.push('/focus')} 
-          className="w-full h-20 text-2xl sm:text-xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-[0_0_40px_rgba(139,92,246,0.2)] rounded-2xl border border-white/10 transition-transform hover:scale-[1.01]"
-        >
-          <Play fill="currentColor" className="w-8 h-8 mr-4" />
-          START FOCUS SESSION
-        </Button>
+<Button 
+  onClick={() => router.push('/focus')} 
+  className="
+    w-full 
+    h-14 sm:h-16 md:h-20 
+    text-lg sm:text-xl md:text-2xl 
+    font-black 
+    bg-gradient-to-r from-violet-600 to-indigo-600 
+    hover:from-violet-500 hover:to-indigo-500 
+    text-white 
+    shadow-[0_0_40px_rgba(139,92,246,0.2)] 
+    rounded-xl sm:rounded-2xl 
+    border border-white/10 
+    transition-transform hover:scale-[1.01]
+    flex items-center justify-center
+  "
+>
+  <Play 
+    fill="currentColor" 
+    className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 mr-2 sm:mr-3 md:mr-4" 
+  />
+  START FOCUS SESSION
+</Button>
       </motion.div>
 
       {/* Gamification Stats */}
