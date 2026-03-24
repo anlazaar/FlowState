@@ -3,6 +3,12 @@ import prisma from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
+const VALID_THEMES =[
+  "theme-violet", "theme-blue", "theme-green", "theme-orange",
+  "theme-violet-pro", "theme-emerald-soft", "theme-rose-quartz", 
+  "theme-amber", "theme-neon-pink", "theme-monochrome"
+];
+
 export async function POST(req: Request) {
   try {
     const cookieStore = await cookies();
@@ -18,11 +24,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { themeColor } = body;
 
-    if (!["theme-violet", "theme-blue", "theme-green", "theme-orange"].includes(themeColor)) {
-      return NextResponse.json({ error: "Invalid theme color" }, { status: 400 });
+    if (!VALID_THEMES.includes(themeColor)) {
+      return NextResponse.json({ error: "Invalid premium theme color" }, { status: 400 });
     }
-
-    
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },

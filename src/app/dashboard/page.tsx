@@ -80,6 +80,7 @@ useEffect(() => {
   const tier = getFocusTier(focusScore);
 
   const dailyMissions = missions.filter(m => !m.type.startsWith("GOAL_"));
+  console.log(dailyMissions);
   const monthlyGoals = missions.filter(m => m.type.startsWith("GOAL_MONTHLY_")).sort((a,b) => a.id.localeCompare(b.id)); // Consistent ordering
   const hasGoalsFeature = user.unlocks?.some((u: any) => u.itemId === "feature-goals");
 

@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         duration,
         status,
         distractionCount: distractionCount || 0,
-        inactiveDuration: inactiveDuration || 0, // stored in seconds
+        inactiveDuration: inactiveDuration || 0,
         startedAt: startedAt ? new Date(startedAt) : new Date(),
         endedAt: endedAt ? new Date(endedAt) : new Date()
       }
@@ -46,28 +46,25 @@ export async function POST(req: Request) {
     let tokensEarned = 0;
 
     if (status === 'SUCCESS') {
-      // Base tokens
       tokensEarned += duration * 4;
 
       const stats = await prisma.stats.findUnique({ where: { userId } });
       if (stats) {
-        // Calculate XP
         const xpEarned = duration * 10;
         const newTotalXP = stats.totalXP + xpEarned;
         const newLevel = Math.floor(newTotalXP / 1000) + 1;
         
-        // Streak Logic
         const now = new Date();
         const lastSessionDate = stats.lastSessionAt || new Date(0);
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const lastSessionDay = new Date(lastSessionDate.getFullYear(), lastSessionDate.getMonth(), lastSessionDate.getDate());
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        const lastSessionDay = new Date(Date.UTC(lastSessionDate.getUTCFullYear(), lastSessionDate.getUTCMonth(), lastSessionDate.getUTCDate()));
+        
         const diffTime = Math.abs(today.getTime() - lastSessionDay.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
         let newStreak = stats.currentStreak;
         if (diffDays === 1) {
           newStreak += 1;
-          // Streak Milestone Bonus (every 7 days)
           if (newStreak % 7 === 0) {
             tokensEarned += 50;
           }
@@ -92,7 +89,8 @@ export async function POST(req: Request) {
 
       // V2: Update DailyStats
       const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
       await prisma.dailyStats.upsert({
         where: {
@@ -110,12 +108,19 @@ export async function POST(req: Request) {
         }
       });
 
-      // V2: Update Missions & Goals
-      const incompleteMissions = await prisma.mission.findMany({
-        where: { userId, completed: false }
+      // V2: Update Missions & Goals strictly for the active period
+      const activeMissions = await prisma.mission.findMany({
+        where: { 
+          userId, 
+          completed: false,
+          OR:[
+            { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
+            { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
+          ]
+        }
       });
       
-      for (const m of incompleteMissions) {
+      for (const m of activeMissions) {
         let newProgress = m.progress;
         if (m.type === "SESSIONS_COUNT" || m.type === "GOAL_MONTHLY_SESSIONS") newProgress += 1;
         if (m.type === "FOCUS_MINUTES" || m.type === "GOAL_MONTHLY_MINUTES") newProgress += duration;
@@ -123,9 +128,9 @@ export async function POST(req: Request) {
         const completed = newProgress >= m.target;
         if (!m.completed && completed) {
           if (m.type.startsWith("GOAL_MONTHLY")) {
-             tokensEarned += 100; // Monthly Goal completion bonus
+             tokensEarned += 100;
           } else {
-             tokensEarned += 20; // Daily Mission completion bonus
+             tokensEarned += 20; 
           }
         }
         
@@ -135,7 +140,7 @@ export async function POST(req: Request) {
         });
       }
 
-      // Award Tokens to User
+      // Award Tokens
       if (tokensEarned > 0) {
         await prisma.user.update({
           where: { id: userId },

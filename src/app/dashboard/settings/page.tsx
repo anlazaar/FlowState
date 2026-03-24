@@ -8,16 +8,39 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNotificationStore } from "@/store/useNotificationStore";
-import { Camera, Plus, Trash2, Link as LinkIcon, Github, Linkedin, Globe } from "lucide-react";
+import { Camera, Plus, Trash2, Link as LinkIcon, Github, Linkedin, Globe, Lock } from "lucide-react";
 
-// Map database strings to actual Tailwind JIT background classes
-const BACKGROUND_STYLES: Record<string, string> = {
-  "bg-none": "bg-transparent",
-  "bg-pattern-grid": "bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:24px_24px]",
-  "bg-pattern-dots": "bg-[radial-gradient(#ffffff25_1px,transparent_1px)] bg-[size:20px_20px]",
-  "bg-pattern-lines": "bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#ffffff15_10px,#ffffff15_11px)]",
-  "bg-pattern-noise": "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay"
-};
+const THEME_OPTIONS =[
+  { id: 'theme-violet', color: 'bg-violet-500' },
+  { id: 'theme-violet-pro', color: 'bg-violet-700' },
+  { id: 'theme-blue', color: 'bg-blue-500' },
+  { id: 'theme-emerald-soft', color: 'bg-emerald-400' },
+  { id: 'theme-rose-quartz', color: 'bg-rose-400' },
+  { id: 'theme-amber', color: 'bg-amber-500' },
+  { id: 'theme-neon-pink', color: 'bg-pink-500' },
+  { id: 'theme-monochrome', color: 'bg-neutral-300' }
+];
+
+const FONT_OPTIONS =[
+  { id: "font-inter", name: "Inter (Default)" },
+  { id: "font-outfit", name: "Outfit (Modern)" },
+  { id: "font-jakarta", name: "Plus Jakarta" },
+  { id: "font-serif-elegant", name: "Playfair" },
+  { id: "font-lora", name: "Lora (Classic)" },
+  { id: "font-mono-dev", name: "Fira Code" },
+  { id: "font-jetbrains", name: "JetBrains" },
+  { id: "font-space", name: "Space Grotesk" },
+  { id: "font-syne", name: "Syne (Display)" },
+];
+
+const BG_OPTIONS =[
+  { id: "bg-none", name: "Solid Dark" },
+  { id: "bg-grid-thin", name: "Thin Grid" },
+  { id: "bg-grid-dense", name: "Dense Grid" },
+  { id: "bg-noise-light", name: "Light Noise" },
+  { id: "bg-noise-strong", name: "Strong Noise" },
+  { id: "bg-gradient-pulse-slow", name: "Slow Pulse" },
+];
 
 export default function SettingsPage() {
   const { user, setUser } = useStore();
@@ -25,10 +48,10 @@ export default function SettingsPage() {
   const router = useRouter();
   
   const [username, setUsername] = useState(user?.username || "");
-  const [profileImage, setProfileImage] = useState(user?.profileImageUrl || "");
-  const [links, setLinks] = useState<{ id?: string; type: string; url: string }[]>(user?.links || []);
+  const[profileImage, setProfileImage] = useState(user?.profileImageUrl || "");
+  const[links, setLinks] = useState<{ id?: string; type: string; url: string }[]>(user?.links ||[]);
   const [themeColor, setThemeColor] = useState(user?.themeColor || "theme-violet");
-  const [usernameFont, setUsernameFont] = useState(user?.usernameFont || "font-sans");
+  const [usernameFont, setUsernameFont] = useState(user?.usernameFont || "font-inter");
   const [backgroundStyle, setBackgroundStyle] = useState(user?.backgroundStyle || "bg-none");
   const [loading, setLoading] = useState(false);
   const [unlocks, setUnlocks] = useState<any[]>([]);
@@ -37,11 +60,26 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetch("/api/shop").then(r => r.json()).then(d => setUnlocks(d.unlocks || []));
-  }, []);
+  },[]);
 
   const hasUnlock = (id: string, defaultItems: string[]) => {
     if (defaultItems.includes(id)) return true;
-    return unlocks.some(u => u.itemId === id);
+    
+    const checkId = (targetId: string) => {
+      return user?.unlocks?.some((u: any) => u.itemId === targetId) || unlocks.some(u => u.itemId === targetId);
+    };
+
+    if (checkId(id)) return true;
+
+    // Legacy migration mappings
+    if (id === 'bg-grid-thin' && checkId('bg-grid')) return true;
+    if (id === 'bg-noise-light' && checkId('bg-noise')) return true;
+    if (id === 'theme-rose-quartz' && checkId('theme-rose')) return true;
+    if (id === 'theme-emerald-soft' && checkId('theme-emerald')) return true;
+    if (id === 'font-mono-dev' && checkId('font-mono')) return true;
+    if (id === 'font-serif-elegant' && checkId('font-serif')) return true;
+
+    return false;
   };
 
   useEffect(() => {
@@ -50,8 +88,8 @@ export default function SettingsPage() {
       if (user.profileImageUrl) setProfileImage(user.profileImageUrl);
       if (user.links) setLinks(user.links);
       if (user.themeColor) setThemeColor(user.themeColor);
-      if (user.usernameFont) setUsernameFont(user.usernameFont);
-      if (user.backgroundStyle) setBackgroundStyle(user.backgroundStyle);
+      if (user.usernameFont) setUsernameFont(user.usernameFont === "font-sans" ? "font-inter" : user.usernameFont);
+      if (user.backgroundStyle) setBackgroundStyle(user.backgroundStyle === "bg-grid" ? "bg-grid-thin" : user.backgroundStyle === "bg-noise" ? "bg-noise-light" : user.backgroundStyle);
     }
   }, [user]);
 
@@ -85,7 +123,7 @@ export default function SettingsPage() {
 
   const addLink = () => setLinks([...links, { type: "custom", url: "" }]);
   const updateLink = (index: number, key: string, value: string) => {
-    const newLinks = [...links];
+    const newLinks =[...links];
     newLinks[index] = { ...newLinks[index], [key]: value };
     setLinks(newLinks);
   };
@@ -135,7 +173,6 @@ export default function SettingsPage() {
         variant: "success",
       });
       
-      // Redirect to the public profile
       router.push(`/u/${username}`);
 
     } catch (e: any) {
@@ -274,23 +311,16 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {[
-                { id: 'theme-violet', color: 'bg-violet-500' },
-                { id: 'theme-blue', color: 'bg-blue-500' },
-                { id: 'theme-rose', color: 'bg-rose-500' },
-                { id: 'theme-emerald', color: 'bg-emerald-500' },
-                { id: 'theme-amber', color: 'bg-amber-500' },
-                { id: 'theme-neon-pink', color: 'bg-pink-500' }
-              ].map(theme => {
-                const isUnlocked = hasUnlock(theme.id, ['theme-violet', 'theme-blue']);
+              {THEME_OPTIONS.map(theme => {
+                const isUnlocked = hasUnlock(theme.id, ['theme-violet']);
                 return (
                   <button 
                     key={theme.id}
                     disabled={!isUnlocked}
                     onClick={() => handleThemeChange(theme.id)} 
-                    className={`w-12 h-12 rounded-full ${theme.color} flex items-center justify-center transition-transform ${themeColor === theme.id ? `ring-4 ring-white shadow-[0_0_15px_rgba(255,255,255,0.8)]` : 'shadow-lg shadow-black'} ${!isUnlocked ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110'}`}
+                    className={`relative w-12 h-12 rounded-full ${theme.color} flex items-center justify-center transition-transform ${themeColor === theme.id ? `ring-4 ring-white shadow-[0_0_15px_rgba(255,255,255,0.8)]` : 'shadow-lg shadow-black'} ${!isUnlocked ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110'}`}
                   >
-                    {!isUnlocked && <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full"><span className="text-[10px]">🔒</span></div>}
+                    {!isUnlocked && <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full"><Lock className="w-3 h-3 text-white/80" /></div>}
                   </button>
                 );
               })}
@@ -301,22 +331,18 @@ export default function SettingsPage() {
         <Card className="glass border-white/10">
           <CardHeader><CardTitle>Typography</CardTitle></CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              {[ 
-                { id: 'font-sans', name: 'Modern Sans' }, 
-                { id: 'font-serif', name: 'Elegant Serif' }, 
-                { id: 'font-mono', name: 'Developer Mono' }
-              ].map(font => {
-                const isUnlocked = hasUnlock(font.id, ['font-sans']);
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {FONT_OPTIONS.map(font => {
+                const isUnlocked = hasUnlock(font.id,['font-inter', 'font-sans']);
                 return (
                   <Button 
                     key={font.id} 
                     variant="outline" 
                     disabled={!isUnlocked}
-                    className={`h-auto py-4 px-2 text-sm md:text-base whitespace-normal relative ${font.id} ${usernameFont === font.id ? 'border-primary bg-primary/20 text-white hover:bg-primary/20 hover:text-white' : 'border-white/10 glass text-white/70 hover:bg-white/10 hover:text-white'}`}
+                    className={`h-auto py-4 px-2 text-sm md:text-base whitespace-normal relative ${font.id} ${usernameFont === font.id ? 'border-primary bg-primary/20 text-white hover:bg-primary/20 hover:text-white ring-2 ring-primary shadow-[0_0_15px_rgba(139,92,246,0.3)]' : 'border-white/10 glass text-white/70 hover:bg-white/10 hover:text-white'}`}
                     onClick={() => setUsernameFont(font.id)}
                   >
-                    {!isUnlocked && <span className="absolute top-2 right-2 text-xs">🔒</span>}
+                    {!isUnlocked && <Lock className="absolute top-2 right-2 w-3 h-3 text-white/30" />}
                     {font.name}
                   </Button>
                 );
@@ -329,24 +355,31 @@ export default function SettingsPage() {
           <CardHeader><CardTitle>Background Style</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              {[ 
-                { id: 'bg-none', name: 'Solid Gradient' }, 
-                { id: 'bg-grid', name: 'Cyber Grid' }, 
-                { id: 'bg-noise', name: 'Noise Texture' },
-                { id: 'bg-gradient-animated', name: 'Pulse Gradient' }
-              ].map(bg => {
-                const isUnlocked = hasUnlock(bg.id, ['bg-none']);
+              {BG_OPTIONS.map(bg => {
+                const isUnlocked = hasUnlock(bg.id,['bg-none']);
                 return (
                   <Button 
                     key={bg.id} 
                     variant="outline"
                     disabled={!isUnlocked}
-                    className={`h-24 flex flex-col items-center justify-center p-0 overflow-hidden relative ${backgroundStyle === bg.id ? 'border-primary ring-2 ring-primary text-white shadow-lg' : 'border-white/10 text-white/70 glass'}`}
+                    className={`group h-24 flex flex-col items-center justify-center p-0 overflow-hidden relative ${backgroundStyle === bg.id ? 'border-primary ring-2 ring-primary text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]' : 'border-white/10 text-white/70 glass hover:bg-white/5'}`}
                     onClick={() => setBackgroundStyle(bg.id)}
                   >
-                    {!isUnlocked && <span className="absolute top-2 right-2 text-xs z-20 bg-black/50 p-1 rounded">🔒</span>}
-                    <div className={`absolute inset-0 bg-[#030305] ${backgroundStyle === bg.id ? 'opacity-100' : 'opacity-40'} ${bg.id === 'bg-grid' ? "bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:24px_24px]" : bg.id === "bg-noise" ? "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" : ""}`} />
-                    <span className="relative z-10 text-xs font-bold bg-black/60 px-2 py-1 rounded backdrop-blur-sm">{bg.name}</span>
+                    {!isUnlocked && (
+                      <div className="absolute top-2 right-2 z-20 bg-black/60 p-1.5 rounded-md backdrop-blur-md">
+                        <Lock className="w-3 h-3 text-white/80" />
+                      </div>
+                    )}
+                    
+                    {/* Fixed robust pure CSS class render */}
+                    <div className="absolute inset-0 bg-[#030305]" />
+                    <div className={`absolute inset-0 transition-opacity duration-300 ${backgroundStyle === bg.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'}`}>
+                      <div className={`absolute inset-0 pointer-events-none ${bg.id !== 'bg-none' ? bg.id : ''}`} />
+                    </div>
+                    
+                    <span className="relative z-10 text-xs font-bold bg-black/80 px-3 py-1.5 rounded-md backdrop-blur-md shadow-xl border border-white/5">
+                      {bg.name}
+                    </span>
                   </Button>
                 );
               })}

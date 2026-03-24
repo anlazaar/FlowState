@@ -19,8 +19,11 @@ export async function GET() {
     }
 
     const userId = payload.userId as string;
+    
+    // Use UTC to prevent timezone boundary issues
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const firstDayOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
     const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
     let user = await prisma.user.findUnique({
@@ -30,9 +33,6 @@ export async function GET() {
         dailyStats: {
           where: { date: { gte: ninetyDaysAgo } },
           orderBy: { date: 'asc' }
-        },
-        missions: {
-          where: { date: { gte: todayStart } }
         },
         links: true,
         unlocks: true
@@ -51,46 +51,91 @@ export async function GET() {
         include: { 
           stats: true, 
           dailyStats: { where: { date: { gte: ninetyDaysAgo } }, orderBy: { date: 'asc' } }, 
-          missions: { where: { date: { gte: todayStart } } },
           links: true,
           unlocks: true
         }
       });
     }
 
+    // 1. Fetch current active missions (will include duplicates if the DB is glitched)
+    let activeMissions = await prisma.mission.findMany({
+      where: { 
+        userId,
+        OR:[
+          { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
+          { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
+        ]
+      }
+    });
+
+    // 2. AUTO-HEAL DATABASE: Deduplicate glitched missions created by the previous bug
+    const missionsToKeep = new Map();
+    const missionsToDelete: string[] =[];
+
+    for (const m of activeMissions) {
+      // Create a unique key based on the type of mission and its target
+      const key = `${m.type}-${m.target}`;
+      
+      if (!missionsToKeep.has(key)) {
+        missionsToKeep.set(key, m);
+      } else {
+        const existing = missionsToKeep.get(key);
+        // Compare progress to ensure we NEVER delete the user's highest progress
+        if (m.progress > existing.progress) {
+          missionsToDelete.push(existing.id); // Mark old one for deletion
+          missionsToKeep.set(key, m); // Keep the one with better progress
+        } else {
+          missionsToDelete.push(m.id); // Mark current duplicate for deletion
+        }
+      }
+    }
+
+    // Execute the cleanup query
+    if (missionsToDelete.length > 0) {
+      await prisma.mission.deleteMany({
+        where: { id: { in: missionsToDelete } }
+      });
+      // Replace activeMissions with ONLY the deduplicated ones
+      activeMissions = Array.from(missionsToKeep.values());
+    }
+
+    // 3. GENERATE MISSING MISSIONS (Only runs if you don't have them)
     const hasGoalsFeature = user.unlocks.some((u: any) => u.itemId === 'feature-goals');
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const hasMonthlyGoals = activeMissions.some((m: any) => m.type.startsWith('GOAL_MONTHLY'));
+    const hasDailyMissions = activeMissions.some((m: any) => !m.type.startsWith('GOAL_MONTHLY'));
     
-    // Check if monthly goals exist
-    const hasMonthlyGoals = user.missions.some((m: any) => m.type.startsWith('GOAL_MONTHLY') && m.date >= firstDayOfMonth);
-    
+    let newMissionsCreated = false;
+
     if (hasGoalsFeature && !hasMonthlyGoals) {
-      const generatedGoals = [
+      const generatedGoals =[
         { userId, type: "GOAL_MONTHLY_MINUTES", target: 600, progress: 0, completed: false, date: firstDayOfMonth },
         { userId, type: "GOAL_MONTHLY_SESSIONS", target: 20, progress: 0, completed: false, date: firstDayOfMonth }
       ];
       await prisma.mission.createMany({ data: generatedGoals });
-      
-      // refetch missions
-      const updatedMissions = await prisma.mission.findMany({ 
-        where: { userId } 
-      });
-      user.missions = updatedMissions;
+      newMissionsCreated = true;
     }
 
-    let userMissions = user.missions;
-    if (userMissions.length === 0) {
-      const generatedMissions = [
+    if (!hasDailyMissions) {
+      const generatedMissions =[
         { userId, type: "SESSIONS_COUNT", target: 3, progress: 0, completed: false, date: todayStart },
         { userId, type: "FOCUS_MINUTES", target: 60, progress: 0, completed: false, date: todayStart },
         { userId, type: "FOCUS_MINUTES", target: 120, progress: 0, completed: false, date: todayStart }
       ];
       await prisma.mission.createMany({ data: generatedMissions });
-      
-      const updatedDailyMissions = await prisma.mission.findMany({ 
-        where: { userId } 
+      newMissionsCreated = true;
+    }
+
+    // 4. Refetch cleanly if we generated new ones just now
+    if (newMissionsCreated) {
+       activeMissions = await prisma.mission.findMany({
+        where: { 
+          userId,
+          OR:[
+            { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
+            { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
+          ]
+        }
       });
-      userMissions = updatedDailyMissions;
     }
 
     const focusScore = await calculateFocusScore(user.id);
@@ -115,7 +160,7 @@ export async function GET() {
         focusScore
       },
       dailyStats: user.dailyStats,
-      missions: userMissions
+      missions: activeMissions // Safely sends ONLY the clean, deduplicated 3-5 active missions!
     });
   } catch (error: any) {
     console.error("API /auth/me error:", error);

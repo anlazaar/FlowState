@@ -22,52 +22,11 @@ export default function FocusPage() {
   const [warning, setWarning] = useState<string | null>(null);
   
   const [showReport, setShowReport] = useState(false);
-  const [finalStatus, setFinalStatus] = useState("");
+  const[finalStatus, setFinalStatus] = useState("");
   const [tokensEarned, setTokensEarned] = useState<number>(0);
-
-  useEffect(() => {
-    syncTime();
-    let interval: NodeJS.Timeout;
-    if (isActive && timeRemaining > 0) {
-      interval = setInterval(() => {
-        tick();
-      }, 1000);
-    } else if (isActive && timeRemaining <= 0) {
-      handleComplete();
-    }
-    return () => clearInterval(interval);
-  }, [isActive, timeRemaining, tick, syncTime]);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && isActive) {
-        setWarning("You left the tab! Stay focused!");
-        useTimerStore.getState().addDistraction();
-        useTimerStore.getState().setHiddenAt(Date.now());
-        setTimeout(() => setWarning(null), 5000);
-      } else if (!document.hidden && isActive) {
-        const hiddenAt = useTimerStore.getState().hiddenAt;
-        if (hiddenAt) {
-          const inactiveSecs = Math.floor((Date.now() - hiddenAt) / 1000);
-          useTimerStore.getState().addInactiveDuration(inactiveSecs);
-          useTimerStore.getState().setHiddenAt(null);
-        }
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isActive]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isActive) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isActive]);
+  
+  // NEW FLAG: Prevents the infinite loop when the timer hits 0
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const playSound = useCallback((type: "start" | "end") => {
     try {
@@ -103,22 +62,7 @@ export default function FocusPage() {
     } catch (e) {
       console.error("Audio playback failed", e);
     }
-  }, []);
-
-  const handleStart = useCallback(() => {
-    if (!inputTitle.trim()) {
-      setWarning("Please enter a task title");
-      setTimeout(() => setWarning(null), 3000);
-      return;
-    }
-    
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
-    
-    playSound("start");
-    startTimer(inputTitle, inputDuration);
-  }, [inputTitle, inputDuration, startTimer, playSound]);
+  },[]);
 
   const saveSession = useCallback(async (status: "SUCCESS" | "FAILED") => {
     try {
@@ -153,22 +97,111 @@ export default function FocusPage() {
     }
   }, [setStats]);
 
+  const handleComplete = useCallback(async () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+    
+    playSound("end");
+    const oldLevel = useStore.getState().stats?.level || 1;
+    await saveSession("SUCCESS");
+    
+    const newLevel = useStore.getState().stats?.level || 1;
+    if (newLevel > oldLevel) {
+      addNotification({ 
+        title: "Level Up!", 
+        description: `You reached Level ${newLevel}! Awesome!`, 
+        variant: "gamification" 
+      });
+    } else {
+      addNotification({ 
+        title: "Session Completed", 
+        description: `You earned ${duration * 10} XP!`, 
+        variant: "success" 
+      });
+    }
+
+    setFinalStatus("SUCCESS");
+    setShowReport(true);
+  }, [saveSession, duration, addNotification, playSound]);
+
+  // FIXED: Add isCompleting guard to avoid infinite render loops
+  useEffect(() => {
+    syncTime();
+    let interval: NodeJS.Timeout;
+    if (isActive && timeRemaining > 0) {
+      interval = setInterval(() => {
+        tick();
+      }, 1000);
+    } else if (isActive && timeRemaining <= 0 && !isCompleting) {
+      setIsCompleting(true);
+      handleComplete();
+    }
+    return () => clearInterval(interval);
+  },[isActive, timeRemaining, tick, syncTime, isCompleting, handleComplete]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && isActive) {
+        setWarning("You left the tab! Stay focused!");
+        useTimerStore.getState().addDistraction();
+        useTimerStore.getState().setHiddenAt(Date.now());
+        setTimeout(() => setWarning(null), 5000);
+      } else if (!document.hidden && isActive) {
+        const hiddenAt = useTimerStore.getState().hiddenAt;
+        if (hiddenAt) {
+          const inactiveSecs = Math.floor((Date.now() - hiddenAt) / 1000);
+          useTimerStore.getState().addInactiveDuration(inactiveSecs);
+          useTimerStore.getState().setHiddenAt(null);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isActive]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isActive) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  },[isActive]);
+
+  const handleStart = useCallback(() => {
+    if (!inputTitle.trim()) {
+      setWarning("Please enter a task title");
+      setTimeout(() => setWarning(null), 3000);
+      return;
+    }
+    
+    setIsCompleting(false); // Make sure to reset flag on new start
+    
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    
+    playSound("start");
+    startTimer(inputTitle, inputDuration);
+  }, [inputTitle, inputDuration, startTimer, playSound]);
+
   const handleGiveUp = useCallback(async () => {
-    // Browsers block confirm() in fullscreen, so exit first.
     let wasFullscreen = false;
     if (document.fullscreenElement) {
       wasFullscreen = true;
       document.exitFullscreen().catch(() => {});
-      // Wait for fullscreen exit event to finish before confirming
       await new Promise(r => setTimeout(r, 150));
     }
     
     if (confirm("Are you sure you want to give up? This will break your focus and record a FAILED session.")) {
+      setIsCompleting(true); // Flag added here too
       await saveSession("FAILED");
       setFinalStatus("FAILED");
       setShowReport(true);
     } else if (wasFullscreen && document.documentElement.requestFullscreen) {
-      // Re-enter fullscreen if canceled
       document.documentElement.requestFullscreen().catch(() => {});
     }
   }, [saveSession]);
@@ -199,37 +232,7 @@ export default function FocusPage() {
     
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isActive, showReport, handleStart, handleCloseReport, handleGiveUp]);
-
-  const handleComplete = useCallback(async () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-    }
-    
-    playSound("end");
-    const oldLevel = useStore.getState().stats?.level || 1;
-    await saveSession("SUCCESS");
-    
-    const newLevel = useStore.getState().stats?.level || 1;
-    if (newLevel > oldLevel) {
-      addNotification({ 
-        title: "Level Up!", 
-        description: `You reached Level ${newLevel}! Awesome!`, 
-        variant: "gamification" 
-      });
-    } else {
-      addNotification({ 
-        title: "Session Completed", 
-        description: `You earned ${duration * 10} XP!`, 
-        variant: "success" 
-      });
-    }
-
-    setFinalStatus("SUCCESS");
-    setShowReport(true);
-  }, [saveSession, duration, addNotification]);
-
-
+  },[isActive, showReport, handleStart, handleCloseReport, handleGiveUp]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -389,7 +392,7 @@ export default function FocusPage() {
       <motion.div 
         className="absolute inset-0 z-0 opacity-40 mix-blend-screen pointer-events-none"
         animate={{
-          background: [
+          background:[
             "radial-gradient(circle at 50% 50%, var(--color-primary) 0%, transparent 60%)",
             "radial-gradient(circle at 50% 50%, var(--color-primary) 0%, transparent 70%)",
             "radial-gradient(circle at 50% 50%, var(--color-primary) 0%, transparent 60%)",
