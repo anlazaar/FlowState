@@ -24,6 +24,10 @@ model User {
   usernameFont       String    @default("font-sans")
   backgroundStyle    String    @default("bg-none")
   links              UserLink[]
+  tokens             Int       @default(0)
+  unlocks            UserUnlock[]
+  activeBadge        String?
+  personalGoals      PersonalGoal[]
 }
 
 model UserLink {
@@ -80,10 +84,35 @@ model Mission {
   date      DateTime
 }
 
+model PersonalGoal {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  type      String   // FOCUS_MINUTES, SESSIONS_COUNT
+  period    String   // DAILY, MONTHLY
+  target    Int
+  progress  Int      @default(0)
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+
 model Match {
   id       String  @id @default(cuid())
   user1Id  String
   user2Id  String
   status   String  // "PENDING", "ACTIVE", "COMPLETED"
   winnerId String?
+}
+
+model UserUnlock {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "font", "color", "background", "badge", "feature"
+  itemId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, type, itemId])
 }

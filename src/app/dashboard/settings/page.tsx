@@ -31,8 +31,18 @@ export default function SettingsPage() {
   const [usernameFont, setUsernameFont] = useState(user?.usernameFont || "font-sans");
   const [backgroundStyle, setBackgroundStyle] = useState(user?.backgroundStyle || "bg-none");
   const [loading, setLoading] = useState(false);
+  const [unlocks, setUnlocks] = useState<any[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/shop").then(r => r.json()).then(d => setUnlocks(d.unlocks || []));
+  }, []);
+
+  const hasUnlock = (id: string, defaultItems: string[]) => {
+    if (defaultItems.includes(id)) return true;
+    return unlocks.some(u => u.itemId === id);
+  };
 
   useEffect(() => {
     if (user) {
@@ -263,11 +273,27 @@ export default function SettingsPage() {
             <CardDescription>Personalize your FlowState accent color.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4">
-              <button onClick={() => handleThemeChange('theme-violet')} className={`w-12 h-12 rounded-full bg-violet-500 hover:scale-110 transition-transform ${themeColor === 'theme-violet' ? 'ring-4 ring-white shadow-[0_0_15px_rgba(139,92,246,0.8)]' : 'shadow-lg shadow-black'}`} />
-              <button onClick={() => handleThemeChange('theme-blue')} className={`w-12 h-12 rounded-full bg-blue-500 hover:scale-110 transition-transform ${themeColor === 'theme-blue' ? 'ring-4 ring-white shadow-[0_0_15px_rgba(59,130,246,0.8)]' : 'shadow-lg shadow-black'}`} />
-              <button onClick={() => handleThemeChange('theme-green')} className={`w-12 h-12 rounded-full bg-emerald-500 hover:scale-110 transition-transform ${themeColor === 'theme-green' ? 'ring-4 ring-white shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'shadow-lg shadow-black'}`} />
-              <button onClick={() => handleThemeChange('theme-orange')} className={`w-12 h-12 rounded-full bg-orange-500 hover:scale-110 transition-transform ${themeColor === 'theme-orange' ? 'ring-4 ring-white shadow-[0_0_15px_rgba(249,115,22,0.8)]' : 'shadow-lg shadow-black'}`} />
+            <div className="flex flex-wrap gap-4">
+              {[
+                { id: 'theme-violet', color: 'bg-violet-500' },
+                { id: 'theme-blue', color: 'bg-blue-500' },
+                { id: 'theme-rose', color: 'bg-rose-500' },
+                { id: 'theme-emerald', color: 'bg-emerald-500' },
+                { id: 'theme-amber', color: 'bg-amber-500' },
+                { id: 'theme-neon-pink', color: 'bg-pink-500' }
+              ].map(theme => {
+                const isUnlocked = hasUnlock(theme.id, ['theme-violet', 'theme-blue']);
+                return (
+                  <button 
+                    key={theme.id}
+                    disabled={!isUnlocked}
+                    onClick={() => handleThemeChange(theme.id)} 
+                    className={`w-12 h-12 rounded-full ${theme.color} flex items-center justify-center transition-transform ${themeColor === theme.id ? `ring-4 ring-white shadow-[0_0_15px_rgba(255,255,255,0.8)]` : 'shadow-lg shadow-black'} ${!isUnlocked ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110'}`}
+                  >
+                    {!isUnlocked && <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full"><span className="text-[10px]">🔒</span></div>}
+                  </button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -279,47 +305,54 @@ export default function SettingsPage() {
               {[ 
                 { id: 'font-sans', name: 'Modern Sans' }, 
                 { id: 'font-serif', name: 'Elegant Serif' }, 
-                { id: 'font-mono', name: 'Developer Mono' }, 
-                { id: 'font-display', name: 'Display' } 
-              ].map(font => (
-                <Button 
-                  key={font.id} 
-                  variant="outline" 
-                  className={`h-auto py-4 px-2 text-sm md:text-base whitespace-normal ${font.id} ${usernameFont === font.id ? 'border-primary bg-primary/20 text-white hover:bg-primary/20 hover:text-white' : 'border-white/10 glass text-white/70 hover:bg-white/10 hover:text-white'}`}
-                  onClick={() => setUsernameFont(font.id)}
-                >
-                  {font.name}
-                </Button>
-              ))}
+                { id: 'font-mono', name: 'Developer Mono' }
+              ].map(font => {
+                const isUnlocked = hasUnlock(font.id, ['font-sans']);
+                return (
+                  <Button 
+                    key={font.id} 
+                    variant="outline" 
+                    disabled={!isUnlocked}
+                    className={`h-auto py-4 px-2 text-sm md:text-base whitespace-normal relative ${font.id} ${usernameFont === font.id ? 'border-primary bg-primary/20 text-white hover:bg-primary/20 hover:text-white' : 'border-white/10 glass text-white/70 hover:bg-white/10 hover:text-white'}`}
+                    onClick={() => setUsernameFont(font.id)}
+                  >
+                    {!isUnlocked && <span className="absolute top-2 right-2 text-xs">🔒</span>}
+                    {font.name}
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
 
-<Card className="glass border-white/10">
-  <CardHeader><CardTitle>Background Style</CardTitle></CardHeader>
-  <CardContent>
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-      {[ 
-        { id: 'bg-none', name: 'Solid Gradient' }, 
-        { id: 'bg-pattern-grid', name: 'Subtle Grid' }, 
-        { id: 'bg-pattern-dots', name: 'Dotted Overlay' }, 
-        { id: 'bg-pattern-lines', name: 'Minimal Lines' }, 
-        { id: 'bg-pattern-noise', name: 'Noise Texture' } 
-      ].map(bg => (
-        <Button 
-          key={bg.id} 
-          variant="outline" 
-          className={`h-24 flex flex-col items-center justify-center p-0 overflow-hidden relative ${backgroundStyle === bg.id ? 'border-primary ring-2 ring-primary text-white shadow-lg' : 'border-white/10 text-white/70 glass'}`}
-          onClick={() => setBackgroundStyle(bg.id)}
-        >
-          {/* Notice here: we just use ${bg.id} to trigger your globals.css classes! */}
-          <div className={`absolute inset-0 bg-[#030305] ${bg.id} ${backgroundStyle === bg.id ? 'opacity-100' : 'opacity-40'}`} />
-          <span className="relative z-10 text-xs font-bold bg-black/60 px-2 py-1 rounded backdrop-blur-sm">{bg.name}</span>
-        </Button>
-      ))}
-    </div>
-  </CardContent>
-</Card>
+        <Card className="glass border-white/10">
+          <CardHeader><CardTitle>Background Style</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {[ 
+                { id: 'bg-none', name: 'Solid Gradient' }, 
+                { id: 'bg-grid', name: 'Cyber Grid' }, 
+                { id: 'bg-noise', name: 'Noise Texture' },
+                { id: 'bg-gradient-animated', name: 'Pulse Gradient' }
+              ].map(bg => {
+                const isUnlocked = hasUnlock(bg.id, ['bg-none']);
+                return (
+                  <Button 
+                    key={bg.id} 
+                    variant="outline"
+                    disabled={!isUnlocked}
+                    className={`h-24 flex flex-col items-center justify-center p-0 overflow-hidden relative ${backgroundStyle === bg.id ? 'border-primary ring-2 ring-primary text-white shadow-lg' : 'border-white/10 text-white/70 glass'}`}
+                    onClick={() => setBackgroundStyle(bg.id)}
+                  >
+                    {!isUnlocked && <span className="absolute top-2 right-2 text-xs z-20 bg-black/50 p-1 rounded">🔒</span>}
+                    <div className={`absolute inset-0 bg-[#030305] ${backgroundStyle === bg.id ? 'opacity-100' : 'opacity-40'} ${bg.id === 'bg-grid' ? "bg-[linear-gradient(to_right,#ffffff15_1px,transparent_1px),linear-gradient(to_bottom,#ffffff15_1px,transparent_1px)] bg-[size:24px_24px]" : bg.id === "bg-noise" ? "bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" : ""}`} />
+                    <span className="relative z-10 text-xs font-bold bg-black/60 px-2 py-1 rounded backdrop-blur-sm">{bg.name}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

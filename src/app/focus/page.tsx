@@ -23,6 +23,7 @@ export default function FocusPage() {
   
   const [showReport, setShowReport] = useState(false);
   const [finalStatus, setFinalStatus] = useState("");
+  const [tokensEarned, setTokensEarned] = useState<number>(0);
 
   useEffect(() => {
     syncTime();
@@ -135,10 +136,16 @@ export default function FocusPage() {
         }),
       });
       if (res.ok && status === "SUCCESS") {
+        const sessionData = await res.json();
+        setTokensEarned(sessionData.tokensEarned || 0);
+
         const meRes = await fetch("/api/auth/me");
         if (meRes.ok) {
           const meData = await meRes.json();
           setStats(meData.stats);
+          if (meData.user) {
+            useStore.getState().setUser(meData.user);
+          }
         }
       }
     } catch (error) {
@@ -236,7 +243,18 @@ export default function FocusPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#030305] p-4 relative overflow-hidden">
         <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-        <Card className="z-10 w-full max-w-lg glass animate-in fade-in zoom-in duration-500">
+        <Card className="z-10 w-full max-w-lg glass animate-in fade-in zoom-in duration-500 relative">
+          {finalStatus === "SUCCESS" && tokensEarned > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.5 }}
+              animate={{ opacity: 1, y: -40, scale: 1.2 }}
+              transition={{ delay: 0.3, duration: 0.8, type: "spring", bounce: 0.5 }}
+              className="absolute -top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 px-6 py-3 rounded-full font-black text-xl shadow-[0_0_30px_rgba(59,130,246,0.6)] z-50 backdrop-blur-xl"
+            >
+              <div className="h-6 w-6 flex items-center justify-center rounded-full bg-blue-500/30 text-[10px] ring-1 ring-blue-400">FT</div>
+              +{tokensEarned} FlowTokens!
+            </motion.div>
+          )}
           <CardHeader className="text-center pb-2">
             <div className="mx-auto mb-4 bg-black/40 p-4 rounded-full border border-white/10 shadow-xl">
               {finalStatus === "SUCCESS" ? (

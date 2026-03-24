@@ -34,7 +34,8 @@ export async function GET() {
         missions: {
           where: { date: { gte: todayStart } }
         },
-        links: true
+        links: true,
+        unlocks: true
       }
     });
 
@@ -51,9 +52,30 @@ export async function GET() {
           stats: true, 
           dailyStats: { where: { date: { gte: ninetyDaysAgo } }, orderBy: { date: 'asc' } }, 
           missions: { where: { date: { gte: todayStart } } },
-          links: true
+          links: true,
+          unlocks: true
         }
       });
+    }
+
+    const hasGoalsFeature = user.unlocks.some((u: any) => u.itemId === 'feature-goals');
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Check if monthly goals exist
+    const hasMonthlyGoals = user.missions.some((m: any) => m.type.startsWith('GOAL_MONTHLY') && m.date >= firstDayOfMonth);
+    
+    if (hasGoalsFeature && !hasMonthlyGoals) {
+      const generatedGoals = [
+        { userId, type: "GOAL_MONTHLY_MINUTES", target: 600, progress: 0, completed: false, date: firstDayOfMonth },
+        { userId, type: "GOAL_MONTHLY_SESSIONS", target: 20, progress: 0, completed: false, date: firstDayOfMonth }
+      ];
+      await prisma.mission.createMany({ data: generatedGoals });
+      
+      // refetch missions
+      const updatedMissions = await prisma.mission.findMany({ 
+        where: { userId } 
+      });
+      user.missions = updatedMissions;
     }
 
     let userMissions = user.missions;
@@ -65,9 +87,10 @@ export async function GET() {
       ];
       await prisma.mission.createMany({ data: generatedMissions });
       
-      userMissions = await prisma.mission.findMany({ 
-        where: { userId, date: { gte: todayStart } } 
+      const updatedDailyMissions = await prisma.mission.findMany({ 
+        where: { userId } 
       });
+      userMissions = updatedDailyMissions;
     }
 
     const focusScore = await calculateFocusScore(user.id);
@@ -83,7 +106,9 @@ export async function GET() {
         textColor: user.textColor,
         usernameFont: user.usernameFont,
         backgroundStyle: user.backgroundStyle,
-        links: user.links
+        links: user.links,
+        tokens: user.tokens,
+        unlocks: user.unlocks
       },
       stats: {
         ...user.stats,

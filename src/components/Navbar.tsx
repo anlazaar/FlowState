@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { LogOut, Zap, Palette } from "lucide-react";
 
 export function Navbar() {
-  const { stats, logout } = useStore();
+  const { user, stats, logout } = useStore();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -54,6 +54,9 @@ export function Navbar() {
             <Link href="/dashboard/history" className="transition-colors hover:text-foreground/80 text-foreground">
               History & Stats
             </Link>
+            <Link href="/shop" className="transition-colors hover:text-foreground/80 text-foreground flex items-center gap-1">
+              Store 🛍️
+            </Link>
             <Link href="/dashboard/settings" className="transition-colors hover:text-foreground/80 text-foreground">
               Settings
             </Link>
@@ -68,6 +71,17 @@ export function Navbar() {
                 <span className="text-muted-foreground/50">|</span>
                 <span className="text-orange-500 font-bold flex items-center gap-1">
                   {stats.currentStreak} 🔥
+                </span>
+              </div>
+            )}
+            
+            {user && (
+              <div className="hidden md:flex items-center space-x-2 text-sm font-medium px-4 py-1.5 rounded-full bg-secondary/50 border border-border/50">
+                <span className="text-blue-400 font-bold flex items-center gap-1">
+                  <span className="h-4 w-4 flex items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-[10px] ring-1 ring-blue-500/50">
+                    FT
+                  </span>
+                  {user.tokens || 0}
                 </span>
               </div>
             )}

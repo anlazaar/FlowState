@@ -17,7 +17,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       dailyStats: {
         where: { date: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) } },
         orderBy: { date: 'asc' }
-      }
+      },
+      unlocks: true
     }
   });
 
@@ -45,6 +46,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
   // Take the exact class name from the DB (e.g., "bg-pattern-grid") to trigger globals.css
   const bgClass = user.backgroundStyle === "bg-none" ? "" : user.backgroundStyle;
+  
+  const hasGoldBadge = user.unlocks?.some((u: any) => u.itemId === "badge-gold");
 
   return (
     <div className={`min-h-screen bg-[#030305] text-white flex flex-col items-center py-16 px-4 relative overflow-hidden ${user.themeColor || 'theme-violet'}`}>
@@ -79,8 +82,13 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
           </div>
 
           <div>
-            <h1 className={`text-4xl md:text-6xl font-black tracking-tight mb-2 ${user.usernameFont || "font-sans"}`}>
+            <h1 className={`text-4xl md:text-6xl font-black tracking-tight mb-2 flex items-center justify-center gap-3 ${user.usernameFont || "font-sans"}`}>
               @{user.username}
+              {hasGoldBadge && (
+                <span title="Premium Member" className="text-3xl drop-shadow-[0_0_15px_rgba(251,191,36,0.8)] filter">
+                  🌟
+                </span>
+              )}
             </h1>
             <p className={`text-2xl font-bold uppercase tracking-widest ${tier.color}`}>
               {tier.label} focuser

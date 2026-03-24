@@ -10,24 +10,34 @@ import { Clock, CheckCircle2, XCircle, BarChart3, Filter } from "lucide-react";
 export default function HistoryPage() {
   const { user } = useStore();
   const [sessions, setSessions] = useState<any[]>([]);
+  const [unlocks, setUnlocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // 'all', 'today', 'week'
 
   useEffect(() => {
-    async function fetchSessions() {
+    async function loadData() {
       try {
-        const res = await fetch("/api/sessions");
-        if (res.ok) {
-          const data = await res.json();
-          setSessions(data.sessions);
+        const [sessionsRes, shopRes] = await Promise.all([
+          fetch("/api/sessions"),
+          fetch("/api/shop")
+        ]);
+        
+        if (sessionsRes.ok) {
+          const sessionsData = await sessionsRes.json();
+          setSessions(sessionsData.sessions);
+        }
+        
+        if (shopRes.ok) {
+          const shopData = await shopRes.json();
+          setUnlocks(shopData.unlocks || []);
         }
       } catch (error) {
-        console.error("Failed to fetch sessions", error);
+        console.error("Failed to fetch history data", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchSessions();
+    loadData();
   }, []);
 
   if (!user) return null;
@@ -157,6 +167,57 @@ export default function HistoryPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Pro Analytics Section */}
+      <div className="mb-8">
+        {unlocks.some(u => u.itemId === "feature-pro-stats") ? (
+          <Card className="border-violet-500/30 bg-violet-500/5 backdrop-blur-md relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <BarChart3 className="w-32 h-32 text-violet-500" />
+             </div>
+             <CardHeader>
+               <CardTitle className="flex items-center gap-2 text-violet-400">
+                 ✨ Pro Analytics Unlocked
+               </CardTitle>
+               <CardDescription>Deep insights into your focusing habits.</CardDescription>
+             </CardHeader>
+             <CardContent className="grid md:grid-cols-3 gap-6 relative z-10">
+               <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+                 <p className="text-sm text-white/50 mb-1">Average Session</p>
+                 <p className="text-2xl font-bold">
+                   {sessions.length > 0 ? Math.floor(sessions.reduce((a, b) => a + b.duration, 0) / sessions.length) : 0} min
+                 </p>
+               </div>
+               <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+                 <p className="text-sm text-white/50 mb-1">Most Distracting Session</p>
+                 <p className="text-xl font-bold truncate">
+                    {sessions.length > 0 ? [...sessions].sort((a,b) => b.distractionCount - a.distractionCount)[0].taskTitle : "N/A"}
+                 </p>
+                 <p className="text-xs text-orange-400 mt-1">
+                    {sessions.length > 0 ? [...sessions].sort((a,b) => b.distractionCount - a.distractionCount)[0].distractionCount : 0} distractions
+                 </p>
+               </div>
+               <div className="bg-black/40 p-4 rounded-xl border border-white/5">
+                 <p className="text-sm text-white/50 mb-1">Success Rate</p>
+                 <p className="text-2xl font-bold text-green-400">
+                   {sessions.length > 0 ? Math.floor((sessions.filter(s => s.status === "SUCCESS").length / sessions.length) * 100) : 0}%
+                 </p>
+               </div>
+             </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-border/20 bg-card/20 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center grayscale opacity-60 relative overflow-hidden group">
+             <div className="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+               <Button onClick={() => window.location.href = '/shop'} className="bg-amber-500 text-black hover:bg-amber-600 font-bold">
+                 Unlock in Store
+               </Button>
+             </div>
+             <BarChart3 className="w-12 h-12 text-white/20 mb-4" />
+             <CardTitle className="mb-2 text-white/40">Pro Analytics Locked</CardTitle>
+             <CardDescription className="max-w-md">Purchase the Pro Analytics feature in the Customization Store to unlock deep insights, success rates, and distraction stats.</CardDescription>
+          </Card>
+        )}
       </div>
 
       {/* Session List */}

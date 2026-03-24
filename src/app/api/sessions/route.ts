@@ -43,7 +43,12 @@ export async function POST(req: Request) {
       }
     });
 
+    let tokensEarned = 0;
+
     if (status === 'SUCCESS') {
+      // Base tokens
+      tokensEarned += duration * 4;
+
       const stats = await prisma.stats.findUnique({ where: { userId } });
       if (stats) {
         // Calculate XP
@@ -62,6 +67,10 @@ export async function POST(req: Request) {
         let newStreak = stats.currentStreak;
         if (diffDays === 1) {
           newStreak += 1;
+          // Streak Milestone Bonus (every 7 days)
+          if (newStreak % 7 === 0) {
+            tokensEarned += 50;
+          }
         } else if (diffDays > 1) {
           newStreak = 1;
         } else {
@@ -101,27 +110,41 @@ export async function POST(req: Request) {
         }
       });
 
-      // V2: Update Missions
-      const missions = await prisma.mission.findMany({
-        where: { userId, date: todayStart, completed: false }
+      // V2: Update Missions & Goals
+      const incompleteMissions = await prisma.mission.findMany({
+        where: { userId, completed: false }
       });
       
-      for (const m of missions) {
+      for (const m of incompleteMissions) {
         let newProgress = m.progress;
-        if (m.type === "SESSIONS_COUNT") newProgress += 1;
-        if (m.type === "FOCUS_MINUTES") newProgress += duration;
+        if (m.type === "SESSIONS_COUNT" || m.type === "GOAL_MONTHLY_SESSIONS") newProgress += 1;
+        if (m.type === "FOCUS_MINUTES" || m.type === "GOAL_MONTHLY_MINUTES") newProgress += duration;
         
         const completed = newProgress >= m.target;
-        // Optionally add bonus XP if completed, handled independently in a real app
+        if (!m.completed && completed) {
+          if (m.type.startsWith("GOAL_MONTHLY")) {
+             tokensEarned += 100; // Monthly Goal completion bonus
+          } else {
+             tokensEarned += 20; // Daily Mission completion bonus
+          }
+        }
         
         await prisma.mission.update({
           where: { id: m.id },
           data: { progress: newProgress, completed }
         });
       }
+
+      // Award Tokens to User
+      if (tokensEarned > 0) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { tokens: { increment: tokensEarned } }
+        });
+      }
     }
 
-    return NextResponse.json({ session }, { status: 201 });
+    return NextResponse.json({ session, tokensEarned }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

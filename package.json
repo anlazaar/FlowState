@@ -7,9 +7,13 @@
     "build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "export": "next export"
   },
   "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
     "@prisma/client": "^5.22.0",
     "@tanstack/react-query": "^5.94.5",
     "bcrypt": "^5.1.1",

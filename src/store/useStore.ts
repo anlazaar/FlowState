@@ -17,6 +17,8 @@ export type User = {
   usernameFont?: string;
   backgroundStyle?: string;
   links?: UserLink[];
+  tokens?: number;
+  unlocks?: any[];
 }
 
 export type Stats = {
