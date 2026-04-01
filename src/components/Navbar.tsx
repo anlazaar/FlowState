@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useStore } from "@/store/useStore";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { LogOut, Settings, BarChart2, User, Menu } from "lucide-react";
+import { LogOut, Settings, BarChart2, Menu, Sparkles, X } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function Navbar() {
   const { user, logout } = useStore();
   const router = useRouter();
-  const[mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -18,107 +20,149 @@ export function Navbar() {
     router.push("/");
   };
 
-  const updateTheme = async (themeClasses: string) => {
-    try {
-      if (typeof window !== "undefined") {
-        const currentClasses = document.body.className.split(" ").filter(c => !c.startsWith("theme-"));
-        document.body.className =[...currentClasses, themeClasses].join(" ");
-      }
-      await fetch("/api/users/theme", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ themeColor: themeClasses })
-      });
-    } catch (e) {
-      console.error("Failed to update theme", e);
-    }
-  };
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#030305]/80 backdrop-blur-xl">
-      <div className="container mx-auto max-w-5xl px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#030305]/80 backdrop-blur-2xl">
+      <div className="container mx-auto max-w-6xl px-4 md:px-8 h-16 md:h-20 flex items-center justify-between transition-all">
+        {/* LOGO & DESKTOP NAV */}
+        <div className="flex items-center gap-10">
           <Link href="/dashboard" className="flex items-center space-x-3 group">
-            <div className="h-8 w-8 rounded-xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center transition-all duration-300 group-hover:bg-primary group-hover:shadow-[0_0_20px_var(--color-primary)]">
-              <span className="font-extrabold text-primary group-hover:text-white text-sm tracking-tighter transition-colors">FS</span>
+            <div className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex flex-col items-center justify-center transition-all duration-500 group-hover:bg-white group-hover:scale-105">
+              <span className="font-extrabold text-white/50 group-hover:text-black text-xs tracking-tighter transition-colors">
+                FS
+              </span>
             </div>
-            <span className="font-bold text-lg hidden sm:inline-block tracking-tight text-white/90 group-hover:text-white transition-colors">
-              FlowState
-            </span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="/dashboard" className="text-white/50 hover:text-white transition-colors">Dashboard</Link>
-            {/* Fixed: /dashboard/sessions -> /focus */}
-            <Link href="/focus" className="text-white/50 hover:text-white transition-colors">Sessions</Link>
-            <Link href="/shop" className="text-white/50 hover:text-white transition-colors">Store</Link>
+
+          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
+            <Link href="/dashboard" className="text-white/60 hover:text-white transition-colors">
+              Dashboard
+            </Link>
+            <Link href="/focus" className="text-white/60 hover:text-white transition-colors">
+              Sessions
+            </Link>
+            <Link href="/shop" className="text-white/60 hover:text-white transition-colors">
+              Shop
+            </Link>
+            <Link href={`/u/${user?.username}`} className="text-white/60 hover:text-white transition-colors">
+              Profile
+            </Link>
           </nav>
         </div>
 
-        <div className="flex items-center space-x-4">
+        {/* RIGHT ACTIONS */}
+        <div className="flex items-center space-x-5">
           {user && (
-            <div className="hidden md:flex items-center space-x-1.5 text-sm font-semibold px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
-              <span className="h-4 w-4 flex items-center justify-center rounded-full bg-primary/20 text-[9px] font-bold">FT</span>
+            <div className="hidden md:flex items-center space-x-2 text-sm font-medium px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/80 hover:bg-white/10 transition-colors cursor-default">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span>{user.tokens || 0}</span>
             </div>
           )}
 
-          <div className="relative group hidden md:block">
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-white/5 border border-white/10 hover:border-white/20 transition-all p-0 overflow-hidden">
+          <div className="relative hidden md:block"
+               onMouseEnter={() => setDropdownOpen(true)}
+               onMouseLeave={() => setDropdownOpen(false)}>
+            <button className="relative h-10 w-10 rounded-full bg-white/5 border border-white/10 hover:border-white/20 transition-all p-0 overflow-hidden outline-none">
               {user?.profileImageUrl ? (
                 <img src={user.profileImageUrl} alt="avatar" className="w-full h-full object-cover" />
               ) : (
-                <User className="h-4 w-4 text-white/70" />
+                <div className="w-full h-full bg-gradient-to-tr from-violet-500 to-indigo-500" />
               )}
-            </Button>
-            
-            <div className="absolute top-full pt-3 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto origin-top-right transform scale-95 group-hover:scale-100 z-50">
-              <div className="w-56 bg-[#09090b]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1">
-                <div className="px-3 py-2 border-b border-white/5 mb-1">
-                  <p className="text-sm font-medium text-white truncate">{user?.username || 'User'}</p>
-                  <p className="text-xs text-white/50 truncate">{user?.email}</p>
-                </div>
-                {/* Fixed: /username -> /u/username & Fixed "Profile Profile" typo */}
-                <Link href={`/u/${user?.username}`} className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                  <User className="w-4 h-4" /> Profile
-                </Link>
-                <Link href="/dashboard/history" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                  <BarChart2 className="w-4 h-4" /> Stats & History
-                </Link>
-                <Link href="/dashboard/settings" className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-colors">
-                  <Settings className="w-4 h-4" /> Settings
-                </Link>
-                <div className="px-3 py-2 border-t border-white/5 mt-1">
-                  <p className="text-xs font-medium text-white/40 mb-2">Pro Themes</p>
-                  <div className="flex gap-2">
-                    <button onClick={() => updateTheme('theme-violet-pro')} className="w-6 h-6 rounded-full bg-violet-700 hover:scale-110 transition-transform ring-1 ring-white/10" title="Deep Violet" />
-                    <button onClick={() => updateTheme('theme-emerald-soft')} className="w-6 h-6 rounded-full bg-emerald-400 hover:scale-110 transition-transform ring-1 ring-white/10" title="Soft Emerald" />
-                    <button onClick={() => updateTheme('theme-rose-quartz')} className="w-6 h-6 rounded-full bg-rose-400 hover:scale-110 transition-transform ring-1 ring-white/10" title="Rose Quartz" />
-                    <button onClick={() => updateTheme('theme-monochrome')} className="w-6 h-6 rounded-full bg-neutral-300 hover:scale-110 transition-transform ring-1 ring-white/10" title="Monochrome" />
+              {user?.activeBadge === 'badge-elite-ring' && (
+                <div className="absolute inset-0 rounded-full border-[2px] border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)] z-10 pointer-events-none" />
+              )}
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full right-0 pt-3 z-50 origin-top-right min-w-[220px]"
+                >
+                  <div className="bg-[#09090b]/90 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 overflow-hidden">
+                    <div className="px-3 py-3 border-b border-white/5 mb-1 bg-white/5 rounded-xl">
+                      <p className="text-sm font-medium text-white truncate flex items-center gap-2">
+                        {user?.username || "User"}
+                        {user?.activeBadge === 'badge-focus-master' && <Sparkles className="w-3.5 h-3.5 text-violet-400" />}
+                      </p>
+                      <p className="text-xs text-white/50 truncate mt-0.5">
+                        {user?.email}
+                      </p>
+                    </div>
+                    
+                    <Link href="/dashboard/history" className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all">
+                      <BarChart2 className="w-4 h-4 text-white/50" /> Stats & History
+                    </Link>
+                    <Link href="/dashboard/settings" className="flex items-center gap-3 px-3 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all">
+                      <Settings className="w-4 h-4 text-white/50" /> Settings
+                    </Link>
+                    <div className="h-px bg-white/5 my-1" />
+                    <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
                   </div>
-                </div>
-                <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-colors mt-1 border-t border-white/5">
-                  <LogOut className="w-4 h-4" /> Sign Out
-                </button>
-              </div>
-            </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <button className="md:hidden p-2 text-white/70 hover:text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <Menu className="w-6 h-6" />
+          <button
+            className="md:hidden p-2.5 rounded-full bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all focus:outline-none"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-[#030305]/95 border-b border-white/10 p-4 md:hidden flex flex-col gap-4 backdrop-blur-xl z-50">
-          <Link href="/dashboard" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Dashboard</Link>
-          {/* Fixed Mobile Links */}
-          <Link href="/focus" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Sessions</Link>
-          <Link href="/shop" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Store</Link>
-          <Link href={`/u/${user?.username}`} className="text-sm font-medium text-white/70 hover:text-white transition-colors">Public Profile</Link>
-          <button onClick={handleLogout} className="text-sm font-medium text-red-400 hover:text-red-300 text-left">Sign Out</button>
-        </div>
-      )}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div 
+             initial={{ opacity: 0, height: 0 }}
+             animate={{ opacity: 1, height: 'auto' }}
+             exit={{ opacity: 0, height: 0 }}
+             className="absolute top-full left-0 w-full bg-[#030305]/95 border-b border-white/10 md:hidden flex flex-col backdrop-blur-3xl z-50 overflow-hidden shadow-2xl"
+          >
+            <div className="p-6 flex flex-col gap-6">
+              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                 <div className="flex items-center gap-3">
+                   <div className="h-10 w-10 rounded-full border border-white/10 overflow-hidden relative">
+                     {user?.profileImageUrl ? (
+                        <img src={user.profileImageUrl} alt="avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-tr from-violet-500 to-indigo-500" />
+                      )}
+                      {user?.activeBadge === 'badge-elite-ring' && (
+                        <div className="absolute inset-0 rounded-full border-[2px] border-amber-400 pointer-events-none" />
+                      )}
+                   </div>
+                   <div>
+                     <p className="text-sm font-medium text-white flex items-center gap-2">
+                       {user?.username}
+                       {user?.activeBadge === 'badge-focus-master' && <Sparkles className="w-3.5 h-3.5 text-violet-400" />}
+                     </p>
+                     <p className="text-xs text-white/50">{user?.tokens || 0} FlowTokens</p>
+                   </div>
+                 </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <Link href="/dashboard" className="text-lg font-medium text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+                <Link href="/focus" className="text-lg font-medium text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Sessions</Link>
+                <Link href="/shop" className="text-lg font-medium text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Shop</Link>
+                <Link href={`/u/${user?.username}`} className="text-lg font-medium text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+                <Link href="/dashboard/settings" className="text-lg font-medium text-white/70 hover:text-white transition-colors" onClick={() => setMobileMenuOpen(false)}>Settings</Link>
+              </div>
+
+              <button onClick={handleLogout} className="mt-4 text-sm font-medium text-red-400 hover:text-red-300 text-left w-full pt-4 border-t border-white/5">
+                Sign Out
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

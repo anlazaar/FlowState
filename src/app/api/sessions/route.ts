@@ -108,34 +108,49 @@ export async function POST(req: Request) {
         }
       });
 
-      // V2: Update Missions & Goals strictly for the active period
+      // V2: Update Missions
       const activeMissions = await prisma.mission.findMany({
         where: { 
           userId, 
           completed: false,
-          OR:[
-            { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
-            { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
-          ]
+          date: { gte: todayStart }
         }
       });
       
       for (const m of activeMissions) {
         let newProgress = m.progress;
-        if (m.type === "SESSIONS_COUNT" || m.type === "GOAL_MONTHLY_SESSIONS") newProgress += 1;
-        if (m.type === "FOCUS_MINUTES" || m.type === "GOAL_MONTHLY_MINUTES") newProgress += duration;
+        if (m.type === "SESSIONS_COUNT") newProgress += 1;
+        if (m.type === "FOCUS_MINUTES") newProgress += duration;
         
         const completed = newProgress >= m.target;
         if (!m.completed && completed) {
-          if (m.type.startsWith("GOAL_MONTHLY")) {
-             tokensEarned += 100;
-          } else {
-             tokensEarned += 20; 
-          }
+           tokensEarned += 20; 
         }
         
         await prisma.mission.update({
           where: { id: m.id },
+          data: { progress: newProgress, completed }
+        });
+      }
+
+      // V3: Update Personal Goals
+      const customGoals = await prisma.personalGoal.findMany({
+        where: { userId, completed: false }
+      });
+
+      for (const goal of customGoals) {
+        let newProgress = goal.progress;
+        if (goal.type === "SESSIONS_COUNT") newProgress += 1;
+        if (goal.type === "FOCUS_MINUTES") newProgress += duration;
+
+        const completed = newProgress >= goal.target;
+        if (!goal.completed && completed) {
+          // Reward: Fixed tokens based on type or just a flat 100
+          tokensEarned += 100;
+        }
+
+        await prisma.personalGoal.update({
+          where: { id: goal.id },
           data: { progress: newProgress, completed }
         });
       }

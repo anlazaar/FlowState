@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Play, Trophy, Flame, Clock, CheckCircle2, ShieldAlert } from "lucide-react";
 import { Heatmap } from "@/components/Heatmap";
 import { MissionsList } from "@/components/Missions";
+import { PersonalGoals } from "@/components/PersonalGoals";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -79,9 +80,7 @@ useEffect(() => {
   const focusScore = stats.focusScore || 0;
   const tier = getFocusTier(focusScore);
 
-  const dailyMissions = missions.filter(m => !m.type.startsWith("GOAL_"));
-  console.log(dailyMissions);
-  const monthlyGoals = missions.filter(m => m.type.startsWith("GOAL_MONTHLY_")).sort((a,b) => a.id.localeCompare(b.id)); // Consistent ordering
+  const dailyMissions = missions.filter(m => !m.type.startsWith("GOAL_MONTHLY"));
   const hasGoalsFeature = user.unlocks?.some((u: any) => u.itemId === "feature-goals");
 
   return (
@@ -258,55 +257,7 @@ useEffect(() => {
       </div>
 
       {/* Advanced Goals Section */}
-      <motion.div className="space-y-4 pt-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          Monthly Master Goals
-          {!hasGoalsFeature && <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full uppercase tracking-widest font-bold">Locked</span>}
-        </h2>
-        
-        {hasGoalsFeature ? (
-          <div className="grid md:grid-cols-2 gap-4">
-            {monthlyGoals.map(goal => (
-              <Card key={goal.id} className={`p-6 border-white/10 ${goal.completed ? 'bg-green-500/5 border-green-500/30' : 'bg-black/20'}`}>
-                 <div className="flex justify-between items-start mb-4">
-                   <div>
-                     <h3 className="font-bold text-lg">{goal.type === "GOAL_MONTHLY_MINUTES" ? "Endurance Master" : "Consistency King"}</h3>
-                     <p className="text-sm text-white/50">
-                        {goal.type === "GOAL_MONTHLY_MINUTES" ? `Focus for ${goal.target} minutes this month.` : `Complete ${goal.target} deep work sessions this month.`}
-                     </p>
-                   </div>
-                   {goal.completed && <CheckCircle2 className="w-6 h-6 text-green-500" />}
-                 </div>
-                 
-                 <div className="space-y-2">
-                   <div className="flex justify-between text-xs font-bold text-white/70">
-                     <span>{Math.min(goal.progress, goal.target)} / {goal.target}</span>
-                     <span>{Math.floor((Math.min(goal.progress, goal.target) / goal.target) * 100)}%</span>
-                   </div>
-                   <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                     <div 
-                       className={`h-full rounded-full transition-all duration-1000 ${goal.completed ? 'bg-green-500' : 'bg-primary'}`} 
-                       style={{ width: `${(Math.min(goal.progress, goal.target) / goal.target) * 100}%` }}
-                     />
-                   </div>
-                   <p className="text-xs text-yellow-500 text-right mt-1">+100 FlowTokens on completion</p>
-                 </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card className="border-border/20 bg-card/20 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center grayscale opacity-60 relative overflow-hidden group">
-             <div className="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-               <Button onClick={() => window.location.href = '/shop'} className="bg-amber-500 text-black hover:bg-amber-600 font-bold">
-                 Unlock in Store
-               </Button>
-             </div>
-             <Trophy className="w-12 h-12 text-white/20 mb-4" />
-             <CardTitle className="mb-2 text-white/40">Advanced Goals Locked</CardTitle>
-             <CardDescription className="max-w-md">Purchase the Goal Tracking feature in the Customization Store to unlock long-term monthly goals and hit massive token payouts.</CardDescription>
-          </Card>
-        )}
-      </motion.div>
+      <PersonalGoals />
 
     </div>
   );

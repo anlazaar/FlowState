@@ -6,6 +6,8 @@ export type UserLink = {
   url: string;
 }
 
+export type PersonalGoal = { id: string; title: string; type: string; period: string; target: number; progress: number; completed: boolean; };
+
 export type User = {
   id: string;
   email: string;
@@ -19,6 +21,8 @@ export type User = {
   links?: UserLink[];
   tokens?: number;
   unlocks?: any[];
+  activeBadge?: string | null;
+  personalGoals?: PersonalGoal[];
 }
 
 export type Stats = {

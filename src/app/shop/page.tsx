@@ -21,11 +21,17 @@ const SHOP_ITEMS =[
 
   // Colors expanded with Pro variants
   { id: "theme-violet", type: "color", name: "Violet (Default)", price: 0, category: "Colors" },
-  { id: "theme-violet-pro", type: "color", name: "Deep Violet", price: 150, category: "Colors" },
-  { id: "theme-blue", type: "color", name: "Ocean Blue", price: 100, category: "Colors" },
-  { id: "theme-emerald-soft", type: "color", name: "Soft Emerald", price: 200, category: "Colors" },
-  { id: "theme-rose-quartz", type: "color", name: "Rose Quartz", price: 200, category: "Colors" },
+  { id: "theme-violet-deep", type: "color", name: "Deep Violet", price: 150, category: "Colors" },
+  { id: "theme-violet-soft", type: "color", name: "Soft Violet", price: 150, category: "Colors" },
+  { id: "theme-blue-contrast", type: "color", name: "Blue Contrast", price: 100, category: "Colors" },
+  { id: "theme-emerald", type: "color", name: "Emerald", price: 200, category: "Colors" },
+  { id: "theme-emerald-deep", type: "color", name: "Deep Emerald", price: 250, category: "Colors" },
+  { id: "theme-emerald-soft", type: "color", name: "Soft Emerald", price: 250, category: "Colors" },
+  { id: "theme-rose", type: "color", name: "Rose", price: 200, category: "Colors" },
+  { id: "theme-rose-deep", type: "color", name: "Deep Rose", price: 250, category: "Colors" },
+  { id: "theme-rose-soft", type: "color", name: "Soft Rose", price: 250, category: "Colors" },
   { id: "theme-amber", type: "color", name: "Cyber Amber", price: 250, category: "Colors" },
+  { id: "theme-amber-deep", type: "color", name: "Deep Amber", price: 300, category: "Colors" },
   { id: "theme-neon-pink", type: "color", name: "Neon Pink", price: 400, category: "Colors", premium: true },
   { id: "theme-monochrome", type: "color", name: "Monochrome", price: 500, category: "Colors", premium: true },
 
@@ -41,6 +47,10 @@ const SHOP_ITEMS =[
   { id: "badge-gold", type: "badge", name: "Gold Badge", price: 1000, category: "Badges", premium: true },
   { id: "badge-elite-ring", type: "badge", name: "Elite Ring", price: 1200, category: "Badges", premium: true },
   { id: "badge-focus-master", type: "badge", name: "Focus Master", price: 1500, category: "Badges", premium: true },
+
+  // Advanced Features
+  { id: "feature-goals", type: "feature", name: "Goal Tracking", price: 500, category: "Features", premium: true },
+  { id: "feature-pro-stats", type: "feature", name: "Pro Analytics", price: 1000, category: "Features", premium: true },
 ];
 
 export default function ShopPage() {
@@ -168,6 +178,7 @@ export default function ShopPage() {
                   {item.category === "Colors" && <Palette className="h-6 w-6 text-white/40 group-hover:text-primary transition-colors" />}
                   {item.category === "Backgrounds" && <ImageIcon className="h-6 w-6 text-white/40 group-hover:text-primary transition-colors" />}
                   {item.category === "Badges" && <Award className="h-6 w-6 text-white/40 group-hover:text-primary transition-colors" />}
+                  {item.category === "Features" && <Sparkles className="h-6 w-6 text-white/40 group-hover:text-primary transition-colors" />}
                 </div>
                 
                 <h3 className="font-bold text-lg mb-1 tracking-tight">{item.name}</h3>
@@ -175,16 +186,22 @@ export default function ShopPage() {
                 {/* Clean CSS-based Preview Block */}
                 <div className="h-24 w-full rounded-2xl mb-5 overflow-hidden border border-white/5 flex items-center justify-center transition-transform group-hover:scale-[1.03]" 
                      style={{
-                       background: item.type === "color" && item.id.includes("rose") ? "#fb7185" : 
-                                   item.type === "color" && item.id.includes("emerald") ? "#34d399" :
-                                   item.type === "color" && item.id.includes("amber") ? "#fbbf24" :
-                                   item.type === "color" && item.id.includes("neon-pink") ? "#ff1493" :
-                                   item.type === "color" && item.id.includes("violet-pro") ? "#5b21b6" :
-                                   item.type === "color" && item.id.includes("blue") ? "#3b82f6" :
-                                   item.type === "color" && item.id.includes("monochrome") ? "#e5e5e5" :
+                       background: item.type === "color" && item.id === "theme-rose" ? "#f43f5e" : 
+                                   item.type === "color" && item.id === "theme-rose-deep" ? "#be123c" :
+                                   item.type === "color" && item.id === "theme-rose-soft" ? "#fda4af" :
+                                   item.type === "color" && item.id === "theme-emerald" ? "#10b981" :
+                                   item.type === "color" && item.id === "theme-emerald-deep" ? "#047857" :
+                                   item.type === "color" && item.id === "theme-emerald-soft" ? "#6ee7b7" :
+                                   item.type === "color" && item.id === "theme-amber" ? "#fbbf24" :
+                                   item.type === "color" && item.id === "theme-amber-deep" ? "#b45309" :
+                                   item.type === "color" && item.id === "theme-neon-pink" ? "#ff1493" :
+                                   item.type === "color" && item.id === "theme-violet-deep" ? "#4c1d95" :
+                                   item.type === "color" && item.id === "theme-violet-soft" ? "#a78bfa" :
+                                   item.type === "color" && item.id === "theme-blue-contrast" ? "#2563eb" :
+                                   item.type === "color" && item.id === "theme-monochrome" ? "#e5e5e5" :
                                    item.type === "background" && item.id.includes("grid-thin") ? "linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)" :
                                    item.type === "background" && item.id.includes("grid-dense") ? "linear-gradient(to right, rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.2) 1px, transparent 1px)" :
-                                   item.type === "background" && item.id.includes("noise") ? "url('https://grainy-gradients.vercel.app/noise.svg')" :
+                                   item.type === "background" && item.id.includes("noise") ? "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" :
                                    item.type === "background" && item.id.includes("pulse") ? "linear-gradient(-45deg, rgba(139,92,246,0.3), rgba(59,130,246,0.3), rgba(16,185,129,0.3))" :
                                    "rgba(255,255,255,0.02)",
                        backgroundSize: item.type === "background" && item.id.includes("grid-thin") ? "24px 24px" : 
@@ -193,6 +210,7 @@ export default function ShopPage() {
                      }}>
                   {item.type === "font" && <span className={`text-4xl font-medium tracking-tight ${item.id}`}>Ag</span>}
                   {item.type === "badge" && <Award className="w-10 h-10 text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]" />}
+                  {item.type === "feature" && <Sparkles className="w-10 h-10 text-violet-400 drop-shadow-[0_0_15px_rgba(139,92,246,0.6)]" />}
                 </div>
 
                 <div className="mt-auto pt-5 flex items-center justify-between border-t border-white/5">

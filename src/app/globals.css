@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;1,300&family=Outfit:wght@400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Roboto:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;700&family=Syne:wght@400;500;700;800&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -9,16 +10,17 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Expanded Fonts Engine */
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-outfit: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-jakarta: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-serif), ui-serif, Georgia, serif;
-  --font-lora: var(--font-lora), ui-serif, Georgia, serif;
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
-  --font-jetbrains: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-  --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  --font-syne: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  /* Premium Typography Engine (10 Fonts) */
+  --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-roboto: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  --font-outfit: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-jakarta: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-merriweather: 'Merriweather', ui-serif, Georgia, serif;
+  --font-playfair: 'Playfair Display', ui-serif, Georgia, serif;
+  --font-fira: 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+  --font-jetbrains: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-space: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-syne: 'Syne', ui-sans-serif, system-ui, sans-serif;
 
   /* Dynamically Bound Primary Values */
   --color-primary: var(--color-primary);
@@ -67,25 +69,34 @@
   }
 
   /* Typography Map */
-  .font-inter { font-family: var(--font-sans); }
+  .font-inter { font-family: var(--font-inter); }
+  .font-roboto { font-family: var(--font-roboto); }
   .font-outfit { font-family: var(--font-outfit); }
   .font-jakarta { font-family: var(--font-jakarta); }
-  .font-serif-elegant { font-family: var(--font-serif); }
-  .font-lora { font-family: var(--font-lora); }
-  .font-mono-dev { font-family: var(--font-mono); }
+  .font-merriweather { font-family: var(--font-merriweather); }
+  .font-playfair { font-family: var(--font-playfair); }
+  .font-fira { font-family: var(--font-fira); }
   .font-jetbrains { font-family: var(--font-jetbrains); }
-  .font-space { font-family: var(--font-display); }
+  .font-space { font-family: var(--font-space); }
   .font-syne { font-family: var(--font-syne); }
 
-  /* Premium Color Engine */
+  /* Premium Color Engine (Pro Variants) */
   .theme-violet { --color-primary: #8b5cf6; }
-  .theme-violet-pro { --color-primary: #5b21b6; }
-  .theme-blue { --color-primary: #3b82f6; }
-  .theme-emerald-soft { --color-primary: #34d399; }
-  .theme-green { --color-primary: #10b981; }
-  .theme-rose-quartz { --color-primary: #fb7185; }
+  .theme-violet-deep { --color-primary: #4c1d95; }
+  .theme-violet-soft { --color-primary: #a78bfa; }
+  
+  .theme-emerald { --color-primary: #10b981; }
+  .theme-emerald-deep { --color-primary: #047857; }
+  .theme-emerald-soft { --color-primary: #6ee7b7; }
+  
+  .theme-rose { --color-primary: #f43f5e; }
+  .theme-rose-deep { --color-primary: #be123c; }
+  .theme-rose-soft { --color-primary: #fda4af; }
+  
   .theme-amber { --color-primary: #fbbf24; }
-  .theme-orange { --color-primary: #f97316; }
+  .theme-amber-deep { --color-primary: #b45309; }
+  
+  .theme-blue-contrast { --color-primary: #2563eb; }
   .theme-neon-pink { --color-primary: #ff1493; }
   .theme-monochrome { --color-primary: #e5e5e5; }
 
@@ -102,12 +113,12 @@
     background-size: 16px 16px;
   }
   .bg-noise-light {
-    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     opacity: 0.25;
     mix-blend-mode: overlay;
   }
   .bg-noise-strong {
-    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     opacity: 0.55;
     mix-blend-mode: overlay;
   }

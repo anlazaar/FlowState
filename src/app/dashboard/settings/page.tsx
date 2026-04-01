@@ -11,26 +11,33 @@ import { useNotificationStore } from "@/store/useNotificationStore";
 import { Camera, Plus, Trash2, Link as LinkIcon, Github, Linkedin, Globe, Lock } from "lucide-react";
 
 const THEME_OPTIONS =[
-  { id: 'theme-violet', color: 'bg-violet-500' },
-  { id: 'theme-violet-pro', color: 'bg-violet-700' },
-  { id: 'theme-blue', color: 'bg-blue-500' },
-  { id: 'theme-emerald-soft', color: 'bg-emerald-400' },
-  { id: 'theme-rose-quartz', color: 'bg-rose-400' },
-  { id: 'theme-amber', color: 'bg-amber-500' },
-  { id: 'theme-neon-pink', color: 'bg-pink-500' },
-  { id: 'theme-monochrome', color: 'bg-neutral-300' }
+  { id: 'theme-violet', color: 'bg-[#8b5cf6]' },
+  { id: 'theme-violet-deep', color: 'bg-[#4c1d95]' },
+  { id: 'theme-violet-soft', color: 'bg-[#a78bfa]' },
+  { id: 'theme-blue-contrast', color: 'bg-[#2563eb]' },
+  { id: 'theme-emerald', color: 'bg-[#10b981]' },
+  { id: 'theme-emerald-deep', color: 'bg-[#047857]' },
+  { id: 'theme-emerald-soft', color: 'bg-[#6ee7b7]' },
+  { id: 'theme-rose', color: 'bg-[#f43f5e]' },
+  { id: 'theme-rose-deep', color: 'bg-[#be123c]' },
+  { id: 'theme-rose-soft', color: 'bg-[#fda4af]' },
+  { id: 'theme-amber', color: 'bg-[#fbbf24]' },
+  { id: 'theme-amber-deep', color: 'bg-[#b45309]' },
+  { id: 'theme-neon-pink', color: 'bg-[#ff1493]' },
+  { id: 'theme-monochrome', color: 'bg-[#e5e5e5]' }
 ];
 
 const FONT_OPTIONS =[
-  { id: "font-inter", name: "Inter (Default)" },
-  { id: "font-outfit", name: "Outfit (Modern)" },
-  { id: "font-jakarta", name: "Plus Jakarta" },
-  { id: "font-serif-elegant", name: "Playfair" },
-  { id: "font-lora", name: "Lora (Classic)" },
-  { id: "font-mono-dev", name: "Fira Code" },
+  { id: "font-inter", name: "Inter" },
+  { id: "font-roboto", name: "Roboto" },
+  { id: "font-outfit", name: "Outfit" },
+  { id: "font-jakarta", name: "Jakarta" },
+  { id: "font-merriweather", name: "Merriweather" },
+  { id: "font-playfair", name: "Playfair" },
+  { id: "font-fira", name: "Fira Code" },
   { id: "font-jetbrains", name: "JetBrains" },
-  { id: "font-space", name: "Space Grotesk" },
-  { id: "font-syne", name: "Syne (Display)" },
+  { id: "font-space", name: "Space" },
+  { id: "font-syne", name: "Syne" },
 ];
 
 const BG_OPTIONS =[
@@ -39,7 +46,14 @@ const BG_OPTIONS =[
   { id: "bg-grid-dense", name: "Dense Grid" },
   { id: "bg-noise-light", name: "Light Noise" },
   { id: "bg-noise-strong", name: "Strong Noise" },
-  { id: "bg-gradient-pulse-slow", name: "Slow Pulse" },
+  { id: "bg-gradient-pulse-slow", name: "Pulse" },
+];
+
+const BADGE_OPTIONS =[
+  { id: "badge-none", name: "None", icon: null },
+  { id: "badge-gold", name: "Gold Badge", icon: "⭐" },
+  { id: "badge-elite-ring", name: "Elite Ring", icon: "🔥" },
+  { id: "badge-focus-master", name: "Focus Master", icon: "⚡" },
 ];
 
 export default function SettingsPage() {
@@ -53,6 +67,7 @@ export default function SettingsPage() {
   const [themeColor, setThemeColor] = useState(user?.themeColor || "theme-violet");
   const [usernameFont, setUsernameFont] = useState(user?.usernameFont || "font-inter");
   const [backgroundStyle, setBackgroundStyle] = useState(user?.backgroundStyle || "bg-none");
+  const [activeBadge, setActiveBadge] = useState(user?.activeBadge || "badge-none");
   const [loading, setLoading] = useState(false);
   const [unlocks, setUnlocks] = useState<any[]>([]);
   
@@ -90,6 +105,7 @@ export default function SettingsPage() {
       if (user.themeColor) setThemeColor(user.themeColor);
       if (user.usernameFont) setUsernameFont(user.usernameFont === "font-sans" ? "font-inter" : user.usernameFont);
       if (user.backgroundStyle) setBackgroundStyle(user.backgroundStyle === "bg-grid" ? "bg-grid-thin" : user.backgroundStyle === "bg-noise" ? "bg-noise-light" : user.backgroundStyle);
+      if (user.activeBadge) setActiveBadge(user.activeBadge);
     }
   }, [user]);
 
@@ -155,6 +171,7 @@ export default function SettingsPage() {
           themeColor,
           usernameFont,
           backgroundStyle,
+          activeBadge: activeBadge === "badge-none" ? null : activeBadge,
         }),
       });
 
@@ -318,10 +335,38 @@ export default function SettingsPage() {
                     key={theme.id}
                     disabled={!isUnlocked}
                     onClick={() => handleThemeChange(theme.id)} 
-                    className={`relative w-12 h-12 rounded-full ${theme.color} flex items-center justify-center transition-transform ${themeColor === theme.id ? `ring-4 ring-white shadow-[0_0_15px_rgba(255,255,255,0.8)]` : 'shadow-lg shadow-black'} ${!isUnlocked ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-110'}`}
+                    style={{ backgroundColor: theme.color.replace('bg-', '').replace('[', '').replace(']', '') }}
+                    className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${themeColor === theme.id ? `ring-2 ring-offset-2 ring-offset-[#030305] ring-white scale-110 shadow-[0_0_20px_rgba(255,255,255,0.3)]` : 'shadow-lg shadow-black/50 border border-white/10'} ${!isUnlocked ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-105 hover:border-white/30'}`}
                   >
                     {!isUnlocked && <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full"><Lock className="w-3 h-3 text-white/80" /></div>}
                   </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass border-white/10">
+          <CardHeader>
+            <CardTitle>Profile Badges</CardTitle>
+            <CardDescription>Display an exclusive status symbol next to your name or avatar.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {BADGE_OPTIONS.map(badge => {
+                const isUnlocked = hasUnlock(badge.id, ['badge-none']);
+                return (
+                  <Button 
+                    key={badge.id} 
+                    variant="outline" 
+                    disabled={!isUnlocked}
+                    className={`h-auto py-4 flex-col gap-2 border-white/10 transition-all ${activeBadge === badge.id ? 'bg-amber-500/20 text-amber-50 border-amber-500 ring-2 ring-amber-500' : 'glass text-white/70 hover:bg-white/10'}`}
+                    onClick={() => setActiveBadge(badge.id)}
+                  >
+                    {!isUnlocked && <Lock className="absolute top-2 right-2 w-3 h-3 text-white/30" />}
+                    <span className="text-2xl">{badge.icon}</span>
+                    <span className="text-sm font-medium">{badge.name}</span>
+                  </Button>
                 );
               })}
             </div>

@@ -1,0 +1,328 @@
+
+> flowstate@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.10.243:3000
+- Environments: .env
+✓ Ready in 246ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/anlazaar/Documents/FlowState/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /home/anlazaar/Documents/FlowState/flowstate/package-lock.json
+
+
+⨯ ./flowstate/src/app/globals.css:3608:8
+Parsing CSS source code failed
+  [90m3606 |[0m   }
+  [90m3607 |[0m }
+[31m[1m>[0m [90m3608 |[0m @[36mimport[0m url([32m'https://fonts.googleap...[0m
+  [90m     |[0m        [31m[1m^[0m
+  [90m3609 |[0m @layer base {
+  [90m3610 |[0m   :root, .dark {
+  [90m3611 |[0m     --background: #[35m030305[0m;
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Generated code of PostCSS transform of file content of flowstate/src/app/globals.css:
+./flowstate/src/app/globals.css:3608:8
+  [90m3606 |[0m   }
+  [90m3607 |[0m }
+[31m[1m>[0m [90m3608 |[0m @[36mimport[0m url([32m'https://fonts.googleap...[0m
+  [90m     |[0m        [31m[1m^[0m
+  [90m3609 |[0m @layer base {
+  [90m3610 |[0m   :root, .dark {
+  [90m3611 |[0m     --background: #[35m030305[0m;
+
+Import trace:
+  Client Component Browser:
+    ./flowstate/src/app/globals.css [Client Component Browser]
+    ./flowstate/src/app/layout.tsx [Server Component]
+
+
+ GET /dashboard/history 500 in 147ms (next.js: 57ms, application-code: 90ms)
+[browser] Uncaught Error: ./flowstate/src/app/globals.css:3608:8
+Parsing CSS source code failed
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Generated code of PostCSS transform of file content of flowstate/src/app/globals.css:
+./flowstate/src/app/globals.css:3608:8
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+Import trace:
+  Client Component Browser:
+    ./flowstate/src/app/globals.css [Client Component Browser]
+    ./flowstate/src/app/layout.tsx [Server Component]
+
+
+    at <unknown> (Error: ./flowstate/src/app/globals.css:3608:8)
+    at <unknown> (./flowstate/src/app/globals.css:3608:8)
+    at <unknown> (Error: (./flowstate/src/app/globals.css:3608:8)
+    at <unknown> (./flowstate/src/app/globals.css:3608:8)
+[browser] ./flowstate/src/app/globals.css:3608:8
+Parsing CSS source code failed
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Generated code of PostCSS transform of file content of flowstate/src/app/globals.css:
+./flowstate/src/app/globals.css:3608:8
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+Import trace:
+  Client Component Browser:
+    ./flowstate/src/app/globals.css [Client Component Browser]
+    ./flowstate/src/app/layout.tsx [Server Component] 
+[browser] ./flowstate/src/app/globals.css:3608:8
+Parsing CSS source code failed
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Generated code of PostCSS transform of file content of flowstate/src/app/globals.css:
+./flowstate/src/app/globals.css:3608:8
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+Import trace:
+  Client Component Browser:
+    ./flowstate/src/app/globals.css [Client Component Browser]
+    ./flowstate/src/app/layout.tsx [Server Component] 
+[browser] ./flowstate/src/app/globals.css:3608:8
+Parsing CSS source code failed
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+@import rules must precede all rules aside from @charset and @layer statements
+
+Generated code of PostCSS transform of file content of flowstate/src/app/globals.css:
+./flowstate/src/app/globals.css:3608:8
+  3606 |   }
+  3607 | }
+> 3608 | @import url('https://fonts.googleap...
+       |        ^
+  3609 | @layer base {
+  3610 |   :root, .dark {
+  3611 |     --background: #030305;
+
+Import trace:
+  Client Component Browser:
+    ./flowstate/src/app/globals.css [Client Component Browser]
+    ./flowstate/src/app/layout.tsx [Server Component] 
+ GET /dashboard/history 200 in 377ms (next.js: 140ms, application-code: 237ms)
+(node:19537) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ GET /api/auth/me 200 in 7.1s (next.js: 171ms, application-code: 6.9s)
+ GET /api/shop 200 in 896ms (next.js: 27ms, application-code: 869ms)
+ GET /api/shop 200 in 348ms (next.js: 1817µs, application-code: 346ms)
+ GET /api/sessions 200 in 2.4s (next.js: 54ms, application-code: 2.3s)
+ GET /api/sessions 200 in 4.9s (next.js: 1938µs, application-code: 4.9s)
+ GET /dashboard/history 200 in 38ms (next.js: 4ms, application-code: 34ms)
+ GET /api/auth/me 200 in 4.8s (next.js: 3ms, application-code: 4.8s)
+ GET /api/shop 200 in 458ms (next.js: 6ms, application-code: 452ms)
+ GET /api/sessions 200 in 597ms (next.js: 3ms, application-code: 595ms)
+ GET /api/shop 200 in 287ms (next.js: 2ms, application-code: 284ms)
+ GET /api/sessions 200 in 465ms (next.js: 1249µs, application-code: 464ms)
+ GET /dashboard 200 in 42ms (next.js: 18ms, application-code: 25ms)
+ GET /api/auth/me 200 in 1925ms (next.js: 1378µs, application-code: 1923ms)
+ GET /api/sessions 200 in 549ms (next.js: 1439µs, application-code: 547ms)
+ GET /api/auth/me 200 in 2.2s (next.js: 1539µs, application-code: 2.2s)
+ GET /api/sessions 200 in 424ms (next.js: 1931µs, application-code: 422ms)
+ POST /api/goals 201 in 893ms (next.js: 191ms, application-code: 702ms)
+ GET /api/auth/me 200 in 1768ms (next.js: 1719µs, application-code: 1766ms)
+ GET /dashboard/settings 200 in 48ms (next.js: 19ms, application-code: 29ms)
+ GET /api/shop 200 in 559ms (next.js: 2ms, application-code: 557ms)
+ GET /api/shop 200 in 288ms (next.js: 1702µs, application-code: 286ms)
+ GET /shop 200 in 34ms (next.js: 15ms, application-code: 19ms)
+ GET /api/shop 200 in 275ms (next.js: 1245µs, application-code: 274ms)
+ GET /api/shop 200 in 281ms (next.js: 1734µs, application-code: 279ms)
+ POST /api/shop 201 in 3.0s (next.js: 2ms, application-code: 2.9s)
+ POST /api/shop 201 in 2.5s (next.js: 1750µs, application-code: 2.5s)
+ POST /api/shop 201 in 1130ms (next.js: 1400µs, application-code: 1128ms)
+ POST /api/shop 400 in 1568ms (next.js: 1359µs, application-code: 1567ms)
+ POST /api/shop 400 in 533ms (next.js: 1489µs, application-code: 531ms)
+ POST /api/shop 201 in 1522ms (next.js: 1485µs, application-code: 1521ms)
+ POST /api/shop 201 in 1516ms (next.js: 1271µs, application-code: 1514ms)
+ POST /api/shop 201 in 1830ms (next.js: 1848µs, application-code: 1828ms)
+ POST /api/shop 201 in 1672ms (next.js: 1521µs, application-code: 1671ms)
+ POST /api/shop 400 in 548ms (next.js: 1267µs, application-code: 547ms)
+Shop purchase error: Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$flowstate$2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique()` invocation in
+/home/anlazaar/Documents/FlowState/flowstate/.next/dev/server/chunks/[root-of-the-server]__0ljfnco._.js:176:172
+
+  173 });
+  174 try {
+  175     const { type, itemId, price } = await req.json();
+→ 176     const user = await __TURBOPACK__imported__module__$5b$project$5d2f$flowstate$2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique(
+Can't reach database server at `ep-weathered-meadow-a41gux5q-pooler.us-east-1.aws.neon.tech:5432`
+
+Please make sure your database server is running at `ep-weathered-meadow-a41gux5q-pooler.us-east-1.aws.neon.tech:5432`.
+    at <unknown> (src/app/api/shop/route.ts:37:36)
+    at async POST (src/app/api/shop/route.ts:37:18)
+  35 |     const { type, itemId, price } = await req.json();
+  36 |
+> 37 |     const user = await prisma.user.findUnique({
+     |                                    ^
+  38 |       where: { id: userId }
+  39 |     });
+  40 | {
+  code: 'P1001',
+  clientVersion: '5.22.0',
+  meta: {
+    modelName: 'User',
+    database_host: 'ep-weathered-meadow-a41gux5q-pooler.us-east-1.aws.neon.tech',
+    database_port: 5432
+  }
+}
+ POST /api/shop 500 in 5.1s (next.js: 1297µs, application-code: 5.1s)
+ POST /api/shop 400 in 415ms (next.js: 1446µs, application-code: 413ms)
+ GET / 200 in 96ms (next.js: 22ms, application-code: 74ms)
+ GET / 200 in 43ms (next.js: 3ms, application-code: 40ms)
+ GET /api/auth/me 401 in 10ms (next.js: 3ms, application-code: 6ms)
+ POST /api/auth/register 201 in 3.9s (next.js: 331ms, application-code: 3.6s)
+ GET /api/auth/me 200 in 2.9s (next.js: 4ms, application-code: 2.9s)
+ GET /dashboard 200 in 96ms (next.js: 5ms, application-code: 92ms)
+ GET /dashboard 200 in 58ms (next.js: 5ms, application-code: 53ms)
+ GET /api/auth/me 200 in 1365ms (next.js: 4ms, application-code: 1362ms)
+ GET /api/sessions 200 in 275ms (next.js: 2ms, application-code: 273ms)
+ GET /api/auth/me 200 in 1373ms (next.js: 3ms, application-code: 1370ms)
+ GET /api/sessions 200 in 181ms (next.js: 3ms, application-code: 178ms)
+ GET /shop 200 in 71ms (next.js: 12ms, application-code: 59ms)
+ GET /api/shop 200 in 2.1s (next.js: 6ms, application-code: 2.1s)
+ GET /api/shop 200 in 148ms (next.js: 3ms, application-code: 145ms)
+ GET /dashboard 200 in 56ms (next.js: 8ms, application-code: 48ms)
+ GET /api/auth/me 200 in 3.7s (next.js: 5ms, application-code: 3.7s)
+ GET /api/sessions 200 in 1091ms (next.js: 3ms, application-code: 1088ms)
+ GET /api/auth/me 200 in 1190ms (next.js: 3ms, application-code: 1187ms)
+ GET /api/sessions 200 in 272ms (next.js: 3ms, application-code: 269ms)
+ GET /shop 200 in 128ms (next.js: 5ms, application-code: 123ms)
+ GET /api/auth/me 200 in 1494ms (next.js: 3ms, application-code: 1492ms)
+ GET /api/shop 200 in 144ms (next.js: 3ms, application-code: 141ms)
+ GET /api/shop 200 in 139ms (next.js: 3ms, application-code: 136ms)
+ GET /dashboard 200 in 93ms (next.js: 5ms, application-code: 88ms)
+ GET /api/auth/me 200 in 2.3s (next.js: 5ms, application-code: 2.3s)
+ GET /api/auth/me 200 in 1670ms (next.js: 3ms, application-code: 1667ms)
+ GET /api/sessions 200 in 316ms (next.js: 2ms, application-code: 314ms)
+ GET /api/auth/me 200 in 1544ms (next.js: 3ms, application-code: 1541ms)
+ GET /api/sessions 200 in 140ms (next.js: 3ms, application-code: 137ms)
+ GET /shop 200 in 72ms (next.js: 3ms, application-code: 68ms)
+ GET /api/auth/me 200 in 3.2s (next.js: 2ms, application-code: 3.2s)
+ GET /api/shop 200 in 174ms (next.js: 3ms, application-code: 171ms)
+ GET /api/shop 200 in 157ms (next.js: 3ms, application-code: 154ms)
+ GET /dashboard 200 in 69ms (next.js: 11ms, application-code: 57ms)
+ GET /api/auth/me 200 in 2.3s (next.js: 8ms, application-code: 2.3s)
+ GET /api/sessions 200 in 667ms (next.js: 2ms, application-code: 664ms)
+ GET /api/auth/me 200 in 1788ms (next.js: 5ms, application-code: 1783ms)
+ GET /api/sessions 200 in 153ms (next.js: 4ms, application-code: 149ms)
+ GET /shop 200 in 85ms (next.js: 6ms, application-code: 78ms)
+ GET /api/auth/me 200 in 2.6s (next.js: 4ms, application-code: 2.6s)
+ GET /api/shop 200 in 191ms (next.js: 3ms, application-code: 188ms)
+ GET /api/shop 200 in 147ms (next.js: 3ms, application-code: 144ms)
+✓ Compiled in 627ms
+✓ Compiled in 125ms
+✓ Compiled in 137ms
+✓ Compiled in 120ms
+ GET /dashboard 200 in 27ms (next.js: 2ms, application-code: 25ms)
+ GET /api/auth/me 200 in 10.7s (next.js: 3ms, application-code: 10.7s)
+ GET /api/auth/me 200 in 3.3s (next.js: 1785µs, application-code: 3.3s)
+ GET /api/sessions 200 in 3.5s (next.js: 1344µs, application-code: 3.5s)
+ GET /api/sessions 200 in 152ms (next.js: 1657µs, application-code: 150ms)
+ GET /u/test26586 200 in 3.8s (next.js: 409ms, application-code: 3.4s)
+ GET /api/auth/me 200 in 3.0s (next.js: 1772µs, application-code: 3.0s)
+ GET /api/sessions 200 in 462ms (next.js: 1823µs, application-code: 460ms)
+ GET /api/auth/me 200 in 1070ms (next.js: 2ms, application-code: 1068ms)
+ GET /dashboard 200 in 19ms (next.js: 3ms, application-code: 16ms)
+ GET /dashboard 200 in 30ms (next.js: 3ms, application-code: 27ms)
+ GET /api/auth/me 200 in 2.8s (next.js: 1633µs, application-code: 2.8s)
+ GET /api/auth/me 200 in 4.0s (next.js: 2ms, application-code: 4.0s)
+ GET /api/auth/me 200 in 2.4s (next.js: 1496µs, application-code: 2.4s)
+ GET /api/sessions 200 in 427ms (next.js: 1782µs, application-code: 425ms)
+ GET /api/auth/me 200 in 1761ms (next.js: 1688µs, application-code: 1759ms)
+ GET /api/sessions 200 in 412ms (next.js: 1542µs, application-code: 411ms)
+ GET /focus 200 in 43ms (next.js: 18ms, application-code: 25ms)
+ POST /api/sessions 201 in 4.4s (next.js: 1910µs, application-code: 4.4s)
+ GET /api/auth/me 200 in 2.9s (next.js: 2ms, application-code: 2.9s)
+ GET /dashboard 200 in 20ms (next.js: 2ms, application-code: 18ms)
+ GET /api/auth/me 200 in 1601ms (next.js: 2ms, application-code: 1598ms)
+ GET /api/auth/me 200 in 1222ms (next.js: 1833µs, application-code: 1220ms)
+ GET /api/sessions 200 in 1218ms (next.js: 1129µs, application-code: 1217ms)
+ GET /api/sessions 200 in 278ms (next.js: 1698µs, application-code: 276ms)
+ GET /u/aeneas_thereal 200 in 2.5s (next.js: 35ms, application-code: 2.5s)
+ GET /u/aeneas_thereal 200 in 1753ms (next.js: 37ms, application-code: 1716ms)
+ GET /api/auth/me 200 in 1630ms (next.js: 1446µs, application-code: 1628ms)
+ GET /api/sessions 200 in 274ms (next.js: 1729µs, application-code: 272ms)
+ GET /api/auth/me 200 in 2.1s (next.js: 1572µs, application-code: 2.1s)
+ GET /api/sessions 200 in 294ms (next.js: 1498µs, application-code: 292ms)
+ GET /focus 200 in 14ms (next.js: 1933µs, application-code: 13ms)
+ GET /api/auth/me 200 in 4.5s (next.js: 2ms, application-code: 4.5s)
+ GET /api/sessions 200 in 1217ms (next.js: 1219µs, application-code: 1216ms)
+ GET /api/auth/me 200 in 1239ms (next.js: 1393µs, application-code: 1238ms)
+ GET /api/sessions 200 in 283ms (next.js: 1099µs, application-code: 282ms)
+ GET /u/aeneas_thereal 200 in 1689ms (next.js: 38ms, application-code: 1650ms)
+ GET /api/auth/me 200 in 1717ms (next.js: 1981µs, application-code: 1715ms)
+ GET /api/sessions 200 in 448ms (next.js: 3ms, application-code: 445ms)
+ GET /api/auth/me 200 in 1251ms (next.js: 1542µs, application-code: 1249ms)
+ GET /shop 200 in 20ms (next.js: 4ms, application-code: 16ms)
+ GET /api/sessions 200 in 144ms (next.js: 1652µs, application-code: 143ms)
+ GET /api/shop 200 in 392ms (next.js: 1758µs, application-code: 390ms)
+ GET /api/shop 200 in 263ms (next.js: 1534µs, application-code: 262ms)
+ GET /dashboard 200 in 17ms (next.js: 2ms, application-code: 15ms)
+ GET /api/auth/me 200 in 3.0s (next.js: 1296µs, application-code: 3.0s)
+ GET /api/sessions 200 in 416ms (next.js: 1213µs, application-code: 414ms)
+ GET /api/auth/me 200 in 1220ms (next.js: 1846µs, application-code: 1218ms)
+ GET /api/sessions 200 in 146ms (next.js: 2ms, application-code: 144ms)
+ GET /dashboard/history 200 in 18ms (next.js: 3ms, application-code: 15ms)
+ GET /api/sessions 200 in 324ms (next.js: 2ms, application-code: 322ms)
+ GET /api/shop 200 in 510ms (next.js: 6ms, application-code: 503ms)
+ GET /api/sessions 200 in 316ms (next.js: 1753µs, application-code: 315ms)
+ GET /api/shop 200 in 310ms (next.js: 1751µs, application-code: 308ms)
+ GET /dashboard 200 in 17ms (next.js: 2ms, application-code: 15ms)
+ GET /api/auth/me 200 in 1985ms (next.js: 2ms, application-code: 1983ms)
+ GET /api/sessions 200 in 418ms (next.js: 1382µs, application-code: 417ms)
+ GET /api/auth/me 200 in 1583ms (next.js: 1582µs, application-code: 1582ms)
+ GET /api/sessions 200 in 275ms (next.js: 1512µs, application-code: 274ms)

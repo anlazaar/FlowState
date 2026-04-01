@@ -116,3 +116,4 @@ model UserUnlock {
 
   @@unique([userId, type, itemId])
 }
+

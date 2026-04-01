@@ -47,17 +47,17 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
   const bgClass = user.backgroundStyle === "bg-none" ? "" : user.backgroundStyle;
   
   // Status Unlocks
-  const hasGoldBadge = user.unlocks?.some((u: any) => u.itemId === "badge-gold");
-  const hasEliteRing = user.unlocks?.some((u: any) => u.itemId === "badge-elite-ring");
-  const hasFocusMaster = user.unlocks?.some((u: any) => u.itemId === "badge-focus-master");
+  const hasGoldBadge = user.activeBadge === "badge-gold";
+  const hasEliteRing = user.activeBadge === "badge-elite-ring";
+  const hasFocusMaster = user.activeBadge === "badge-focus-master";
 
-  const avatarRing = hasEliteRing ? "ring-4 ring-primary ring-offset-[6px] ring-offset-[#030305] shadow-[0_0_40px_var(--color-primary)]" : tier.ring;
+  const avatarRing = hasEliteRing ? "ring-[6px] ring-amber-400 ring-offset-[6px] ring-offset-[#030305] shadow-[0_0_30px_rgba(251,191,36,0.8)]" : tier.ring;
 
   return (
     <div className={`min-h-screen bg-[#030305] text-white flex flex-col items-center py-20 px-4 relative overflow-hidden ${user.themeColor || 'theme-violet'}`}>
       
       {bgClass && (
-        <div className={`absolute inset-0 z-0 pointer-events-none ${bgClass}`} />
+        <div className={`absolute inset-0 z-0 pointer-events-none opacity-40 ${bgClass}`} />
       )}
       
       <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[50vw] h-[50vw] rounded-full bg-primary/10 blur-[140px] mix-blend-screen pointer-events-none z-0" />
@@ -84,16 +84,16 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
           </div>
 
           <div>
-            <h1 className={`text-4xl md:text-6xl font-black tracking-tighter mb-3 flex items-center justify-center gap-3 ${user.usernameFont || "font-sans"}`}>
-              @{user.username}
+            <h1 className={`text-5xl md:text-7xl font-black tracking-tighter mb-4 flex flex-wrap items-center justify-center gap-3 w-full max-w-[90vw] ${user.usernameFont || "font-inter"}`}>
+              <span className="truncate max-w-full">@{user.username}</span>
               {hasFocusMaster && (
-                <span title="Focus Master" className="text-primary ml-1 drop-shadow-[0_0_15px_var(--color-primary)] filter">
-                  <Sparkles className="w-8 h-8" />
+                <span title="Focus Master" className="text-violet-400 drop-shadow-[0_0_20px_rgba(139,92,246,0.8)] filter">
+                  <Sparkles className="w-10 h-10 md:w-14 md:h-14" />
                 </span>
               )}
               {hasGoldBadge && (
-                <span title="Gold Member" className="text-3xl drop-shadow-[0_0_15px_rgba(251,191,36,0.8)] filter">
-                  🌟
+                <span title="Gold Member" className="text-4xl md:text-5xl drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] filter">
+                  ⭐
                 </span>
               )}
             </h1>

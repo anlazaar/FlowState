@@ -34,6 +34,10 @@ export async function GET() {
           where: { date: { gte: ninetyDaysAgo } },
           orderBy: { date: 'asc' }
         },
+        missions: {
+          where: { date: { gte: todayStart } }
+        },
+        personalGoals: true,
         links: true,
         unlocks: true
       }
@@ -51,6 +55,8 @@ export async function GET() {
         include: { 
           stats: true, 
           dailyStats: { where: { date: { gte: ninetyDaysAgo } }, orderBy: { date: 'asc' } }, 
+          missions: { where: { date: { gte: todayStart } } },
+          personalGoals: true,
           links: true,
           unlocks: true
         }
@@ -58,15 +64,7 @@ export async function GET() {
     }
 
     // 1. Fetch current active missions (will include duplicates if the DB is glitched)
-    let activeMissions = await prisma.mission.findMany({
-      where: { 
-        userId,
-        OR:[
-          { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
-          { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
-        ]
-      }
-    });
+    let activeMissions = user.missions;
 
     // 2. AUTO-HEAL DATABASE: Deduplicate glitched missions created by the previous bug
     const missionsToKeep = new Map();
@@ -100,42 +98,19 @@ export async function GET() {
     }
 
     // 3. GENERATE MISSING MISSIONS (Only runs if you don't have them)
-    const hasGoalsFeature = user.unlocks.some((u: any) => u.itemId === 'feature-goals');
-    const hasMonthlyGoals = activeMissions.some((m: any) => m.type.startsWith('GOAL_MONTHLY'));
-    const hasDailyMissions = activeMissions.some((m: any) => !m.type.startsWith('GOAL_MONTHLY'));
-    
-    let newMissionsCreated = false;
-
-    if (hasGoalsFeature && !hasMonthlyGoals) {
-      const generatedGoals =[
-        { userId, type: "GOAL_MONTHLY_MINUTES", target: 600, progress: 0, completed: false, date: firstDayOfMonth },
-        { userId, type: "GOAL_MONTHLY_SESSIONS", target: 20, progress: 0, completed: false, date: firstDayOfMonth }
-      ];
-      await prisma.mission.createMany({ data: generatedGoals });
-      newMissionsCreated = true;
-    }
-
-    if (!hasDailyMissions) {
-      const generatedMissions =[
+    let userMissions = activeMissions;
+    if (userMissions.length === 0) {
+      const generatedMissions = [
         { userId, type: "SESSIONS_COUNT", target: 3, progress: 0, completed: false, date: todayStart },
         { userId, type: "FOCUS_MINUTES", target: 60, progress: 0, completed: false, date: todayStart },
         { userId, type: "FOCUS_MINUTES", target: 120, progress: 0, completed: false, date: todayStart }
       ];
       await prisma.mission.createMany({ data: generatedMissions });
-      newMissionsCreated = true;
-    }
-
-    // 4. Refetch cleanly if we generated new ones just now
-    if (newMissionsCreated) {
-       activeMissions = await prisma.mission.findMany({
-        where: { 
-          userId,
-          OR:[
-            { type: { startsWith: 'GOAL_MONTHLY' }, date: { gte: firstDayOfMonth } },
-            { type: { not: { startsWith: 'GOAL_MONTHLY' } }, date: { gte: todayStart } }
-          ]
-        }
+      
+      const updatedDailyMissions = await prisma.mission.findMany({ 
+        where: { userId, date: { gte: todayStart } } 
       });
+      userMissions = updatedDailyMissions;
     }
 
     const focusScore = await calculateFocusScore(user.id);
@@ -153,14 +128,16 @@ export async function GET() {
         backgroundStyle: user.backgroundStyle,
         links: user.links,
         tokens: user.tokens,
-        unlocks: user.unlocks
+        unlocks: user.unlocks,
+        activeBadge: user.activeBadge,
+        personalGoals: user.personalGoals || []
       },
       stats: {
         ...user.stats,
         focusScore
       },
       dailyStats: user.dailyStats,
-      missions: activeMissions // Safely sends ONLY the clean, deduplicated 3-5 active missions!
+      missions: userMissions
     });
   } catch (error: any) {
     console.error("API /auth/me error:", error);
